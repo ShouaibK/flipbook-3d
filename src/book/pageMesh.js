@@ -24,7 +24,7 @@ const vertexShader = `
     float edgeWeight = smoothstep(0.0, 1.0, t);
     float bend = edgeWeight * clamp(uFlip, 0.0, 1.0) * spineMask;
 
-    float theta = bend * 2.35;
+    float theta = bend * 3.14159265;
 
     vec3 pos = position;
     float curl = sin(theta);
