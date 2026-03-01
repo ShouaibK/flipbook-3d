@@ -1,0 +1,138 @@
+.overlay-ui {
+  position: absolute;
+  left: 50%;
+  bottom: 1.1rem;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: grid;
+  gap: 0.65rem;
+  justify-items: center;
+  pointer-events: none;
+}
+
+.overlay-ui__nav,
+.overlay-ui__extras {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.36rem 0.45rem;
+  border-radius: 999px;
+  background: rgba(7, 10, 16, 0.44);
+  backdrop-filter: blur(6px);
+  pointer-events: auto;
+}
+
+.overlay-ui__btn,
+.overlay-ui__pill {
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.23);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.62);
+  font: 600 0.82rem/1 "Segoe UI", sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0 0.92rem;
+  cursor: pointer;
+  transition: transform 140ms ease, opacity 140ms ease, background-color 140ms ease;
+}
+
+.overlay-ui__btn {
+  font-size: 1.1rem;
+  padding: 0;
+}
+
+.overlay-ui__btn:hover,
+.overlay-ui__pill:hover,
+.overlay-ui__autoplay:hover {
+  color: rgba(255, 255, 255, 0.92);
+  transform: scale(1.03);
+}
+
+.overlay-ui__btn:disabled {
+  opacity: 0.28;
+  cursor: default;
+  transform: none;
+}
+
+.overlay-ui__btn:focus-visible,
+.overlay-ui__pill:focus-visible,
+.overlay-ui__autoplay:focus-within,
+.overlay-ui__speed input[type="range"]:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.78);
+  outline-offset: 2px;
+}
+
+.overlay-ui__counter {
+  min-width: 108px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.66);
+  font: 600 0.76rem/1 "Segoe UI", sans-serif;
+  letter-spacing: 0.12em;
+}
+
+.overlay-ui__pill {
+  min-width: 82px;
+}
+
+.overlay-ui__autoplay {
+  min-height: 44px;
+  padding: 0 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.62);
+  font: 600 0.72rem/1 "Segoe UI", sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 140ms ease, color 140ms ease;
+}
+
+.overlay-ui__autoplay input {
+  width: 16px;
+  height: 16px;
+  accent-color: rgba(255, 255, 255, 0.8);
+}
+
+.overlay-ui__speed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.48rem;
+  min-height: 44px;
+  padding: 0 0.78rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.overlay-ui__speed input[type="range"] {
+  width: 100px;
+}
+
+.overlay-ui__speed-label {
+  min-width: 32px;
+  color: rgba(255, 255, 255, 0.6);
+  font: 600 0.66rem/1 "Segoe UI", sans-serif;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 720px) {
+  .overlay-ui {
+    bottom: 0.75rem;
+    width: calc(100% - 1.2rem);
+  }
+
+  .overlay-ui__nav,
+  .overlay-ui__extras {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .overlay-ui__counter {
+    min-width: 92px;
+  }
+}
