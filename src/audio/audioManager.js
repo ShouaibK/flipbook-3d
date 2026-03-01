@@ -1,4 +1,5 @@
 const DEFAULT_VOLUME = 0.16;
+const AUDIO_BASE_PATH = `${import.meta.env.BASE_URL}audio`;
 
 function createAudioClip({ url, volume, label }) {
   const audio = new Audio(url);
@@ -83,7 +84,7 @@ export function createAudioManager() {
   let unlocked = false;
 
   const whoosh = createAudioClip({
-    url: "/audio/whoosh.mp3",
+    url: `${AUDIO_BASE_PATH}/whoosh.mp3`,
     volume: DEFAULT_VOLUME,
     label: "whoosh"
   });

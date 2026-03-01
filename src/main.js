@@ -3,7 +3,7 @@ import "./styles.css";
 import { createParticleSystem } from "./particles/index.js";
 import { createCamera } from "./three/createCamera.js";
 import { createRenderer } from "./three/createRenderer.js";
-import { createScene } from "./three/createScene.js";
+import { createScene } from "./scene.js";
 import { disposeBook, getBookController, initBook, updateBook } from "./book/index.js";
 import { PAGE_WIDTH } from "./book/pageMesh.js";
 import { createAudioManager } from "./audio/audioManager.js";
@@ -163,6 +163,7 @@ let cameraDriftTime = 0;
 const RIM_TRANSITION_SECONDS = 0.4;
 const AUTOPLAY_BASE_DELAY_SECONDS = 1.55;
 const AUDIO_MUTE_SESSION_KEY = "flipbook_audio_muted";
+const PAGE_BASE_PATH = `${import.meta.env.BASE_URL}pages`;
 
 const rimState = {
   currentColor: rimLight.color.clone(),
@@ -429,7 +430,7 @@ function stepRimTransition(dt) {
 }
 
 function pageUrl(pageNumber) {
-  return `/pages/book_${String(pageNumber).padStart(2, "0")}.jpg`;
+  return `${PAGE_BASE_PATH}/book_${String(pageNumber).padStart(2, "0")}.jpg`;
 }
 
 function requestRimColorForPage(pageNumber, { logSwitch = false } = {}) {

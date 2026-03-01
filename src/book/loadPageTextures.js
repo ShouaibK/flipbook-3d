@@ -3,7 +3,7 @@ import { extractDominantColor, getCachedDominantColor } from "../utils/colorExtr
 import { PERFORMANCE } from "../config.js";
 
 const DEFAULT_TOTAL_PAGES = 20;
-const PAGE_PATH_PREFIX = "/pages";
+const PAGE_PATH_PREFIX = `${import.meta.env.BASE_URL}pages`;
 const PAGE_FILE_PREFIX = "book_";
 const IMAGE_EXTENSION = "jpg";
 const DEFAULT_ANISOTROPY = PERFORMANCE.TEXTURE_ANISOTROPY_MAX;

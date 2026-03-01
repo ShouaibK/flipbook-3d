@@ -17,6 +17,7 @@ const SETTLE_BEND_AMPLITUDE = 0.06;
 const SETTLE_ROTATION_Y_AMPLITUDE = 0.02;
 const MID_FLIP_PROGRESS = 0.5;
 const END_FLIP_PROGRESS = 0.95;
+const PAGE_BASE_PATH = `${import.meta.env.BASE_URL}pages`;
 
 function easeInOutCubic(t) {
   if (t < 0.5) {
@@ -173,7 +174,7 @@ export function createBookController({ scene, pageTextures }) {
 
   function getPageImageUrl(pageNumber) {
     const clampedPage = THREE.MathUtils.clamp(pageNumber, 1, totalPages);
-    return `/pages/book_${String(clampedPage).padStart(2, "0")}.jpg`;
+    return `${PAGE_BASE_PATH}/book_${String(clampedPage).padStart(2, "0")}.jpg`;
   }
 
   function requestRimColorForPage(pageNumber) {
