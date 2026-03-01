@@ -35,7 +35,7 @@ const vertexShader = `
     pos.z += curl * (0.24 + 0.22 * edgeWeight) * spineMask;
 
     // Prevent z-fighting when page is almost fully flipped
-    pos.z += smoothstep(0.98, 1.0, uFlip) * 0.002;
+    pos.z += smoothstep(0.98, 1.0, uFlip) * 0.004;
 
     // Subtle paper ripple so the sheet reads as flexible, not rigid.
     pos.y += sin((t + uTime * 0.17) * 3.14159265) * 0.01 * bend * spineMask;
