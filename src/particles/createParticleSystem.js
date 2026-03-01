@@ -13,6 +13,7 @@ const STARFIELD_BOUNDS = { x: 42, y: 24, z: 8 };
 const PARTICLE_FOG_NEAR = 16;
 const PARTICLE_FOG_FAR = 54;
 const PARTICLE_FOG_MIN_ALPHA = 0.36;
+const TIME_UNIFORM_UPDATE_INTERVAL_SECONDS = 0.033;
 
 function resolveLayerConfig(totalStars) {
   const resolved = [];
@@ -43,6 +44,7 @@ function resolveLayerConfig(totalStars) {
 export function createParticleSystem(scene) {
   const layers = [];
   let elapsedTime = 0;
+  let uniformUpdateAccumulator = 0;
 
   function createLayer(config, index) {
     const geometry = new THREE.BufferGeometry();
@@ -128,6 +130,13 @@ export function createParticleSystem(scene) {
 
   function update(dt = 0) {
     elapsedTime += dt;
+    uniformUpdateAccumulator += dt;
+
+    if (uniformUpdateAccumulator < TIME_UNIFORM_UPDATE_INTERVAL_SECONDS) {
+      return;
+    }
+
+    uniformUpdateAccumulator = 0;
 
     for (const layer of layers) {
       layer.material.uniforms.uTime.value = elapsedTime;

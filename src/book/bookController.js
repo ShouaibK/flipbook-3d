@@ -2,7 +2,6 @@ import * as THREE from "three";
 import { createPageMesh, PAGE_WIDTH } from "./pageMesh.js";
 import { getDominantColorFromUrl } from "../utils/colorExtract.js";
 import { debugLog } from "../utils/debug.js";
-import { PERFORMANCE } from "../config.js";
 
 const FLIP_SPEED = 0.5;
 const TOTAL_PAGES = 20;
@@ -30,13 +29,17 @@ function easeInOutCubic(t) {
 /**
  * Manages one preview page and exposes a small runtime API.
  */
-export function createBookController({ scene, pageTextures }) {
+export function createBookController({ scene, pageTextureStore }) {
   if (!scene) {
     throw new Error("createBookController requires a scene");
   }
 
-  if (!Array.isArray(pageTextures) || pageTextures.length < TOTAL_PAGES) {
-    throw new Error(`createBookController requires ${TOTAL_PAGES} loaded page textures`);
+  if (
+    !pageTextureStore ||
+    typeof pageTextureStore.getTexture !== "function" ||
+    typeof pageTextureStore.setActivePage !== "function"
+  ) {
+    throw new Error("createBookController requires a page texture store");
   }
 
   const group = new THREE.Group();
@@ -75,6 +78,8 @@ export function createBookController({ scene, pageTextures }) {
   let endTriggered = false;
   let midTriggerPending = false;
   let endTriggerPending = false;
+  let underPageNumber = null;
+  let frontPageTexture = null;
   const flipSignals = {
     midTriggered: false,
     endTriggered: false,
@@ -126,7 +131,7 @@ export function createBookController({ scene, pageTextures }) {
       layer.scale.setScalar(1 - i * 0.0022);
       layer.material.color.offsetHSL(0.0, -0.01, -i * 0.006);
       layer.castShadow = false;
-      layer.receiveShadow = PERFORMANCE.SHADOWS_ENABLED;
+      layer.receiveShadow = false;
       stackGroup.add(layer);
     }
 
@@ -139,19 +144,34 @@ export function createBookController({ scene, pageTextures }) {
       })
     );
     spineBlock.position.set(LEFT_HINGE_X + 0.03, -0.005, -0.03);
-    spineBlock.castShadow = PERFORMANCE.SHADOWS_ENABLED;
-    spineBlock.receiveShadow = PERFORMANCE.SHADOWS_ENABLED;
+    spineBlock.castShadow = false;
+    spineBlock.receiveShadow = false;
     stackGroup.add(spineBlock);
   }
 
   function getPageTexture(pageNumber) {
     const clampedPage = THREE.MathUtils.clamp(pageNumber, 1, totalPages);
-    return pageTextures[clampedPage - 1];
+    return pageTextureStore.getTexture(clampedPage);
+  }
+
+  function setTextureFocus(pageNumber) {
+    const clampedPage = THREE.MathUtils.clamp(pageNumber, 1, totalPages);
+    pageTextureStore.setActivePage(clampedPage);
+  }
+
+  function syncFrontTexture() {
+    const texture = getPageTexture(currentPage);
+    if (texture !== frontPageTexture) {
+      frontPageTexture = texture;
+      page.setTextures({
+        frontTexture: texture
+      });
+    }
   }
 
   function setUnderPageTexture(pageNumber) {
-    const clampedPage = THREE.MathUtils.clamp(pageNumber, 1, totalPages);
-    const texture = getPageTexture(clampedPage);
+    underPageNumber = THREE.MathUtils.clamp(pageNumber, 1, totalPages);
+    const texture = getPageTexture(underPageNumber);
     const nextMap = texture ?? null;
     if (underPageMesh.material.map !== nextMap) {
       underPageMesh.material.map = nextMap;
@@ -165,11 +185,21 @@ export function createBookController({ scene, pageTextures }) {
   }
 
   function hideUnderPage() {
+    underPageNumber = null;
     underPageMesh.visible = false;
   }
 
+  function syncVisibleTextures() {
+    syncFrontTexture();
+
+    if (underPageMesh.visible && underPageNumber !== null) {
+      setUnderPageTexture(underPageNumber);
+    }
+  }
+
   function syncPageShadowState() {
-    page.mesh.castShadow = PERFORMANCE.SHADOWS_ENABLED && !isFlipping;
+    page.mesh.castShadow = false;
+    page.mesh.receiveShadow = false;
   }
 
   function getPageImageUrl(pageNumber) {
@@ -202,18 +232,14 @@ export function createBookController({ scene, pageTextures }) {
   }
 
   function applyRestTextures() {
-    page.setTextures({
-      frontTexture: getPageTexture(currentPage)
-    });
+    syncFrontTexture();
     hideUnderPage();
   }
 
   function applyFlipTextures(direction) {
     const underPage = direction === "forward" ? currentPage + 1 : currentPage - 1;
     const clampedUnderPage = THREE.MathUtils.clamp(underPage, 1, totalPages);
-    page.setTextures({
-      frontTexture: getPageTexture(currentPage)
-    });
+    syncFrontTexture();
     showUnderPage(clampedUnderPage);
   }
 
@@ -318,6 +344,10 @@ export function createBookController({ scene, pageTextures }) {
     }
 
     flipDirection = direction;
+    const pageStep = direction === "forward" ? 1 : -1;
+    const targetPage = THREE.MathUtils.clamp(currentPage + pageStep, 1, totalPages);
+    setTextureFocus(targetPage);
+
     flipSessionId += 1;
     flipProgress = 0;
     isFlipping = true;
@@ -407,6 +437,7 @@ export function createBookController({ scene, pageTextures }) {
 
     const pageStep = flipDirection === "forward" ? 1 : -1;
     currentPage = THREE.MathUtils.clamp(currentPage + pageStep, 1, totalPages);
+    setTextureFocus(currentPage);
 
     isFlipping = false;
     isDragging = false;
@@ -429,6 +460,7 @@ export function createBookController({ scene, pageTextures }) {
     resetSettle();
     resetFlipTriggerFlags();
     setFlipProgress(0, { applyEase: false });
+    setTextureFocus(currentPage);
     applyRestTextures();
   }
 
@@ -443,6 +475,7 @@ export function createBookController({ scene, pageTextures }) {
   function update(dt) {
     elapsed += dt;
     page.update(dt);
+    syncVisibleTextures();
 
     if (isDragging) {
       // Drag mode directly controls flip progress from pointer input.
@@ -544,6 +577,7 @@ export function createBookController({ scene, pageTextures }) {
   }
 
   createFakeStack();
+  setTextureFocus(currentPage);
   applyRestTextures();
   setupLeftHinge();
   syncPageShadowState();

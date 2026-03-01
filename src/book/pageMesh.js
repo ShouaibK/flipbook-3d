@@ -137,8 +137,8 @@ export function createPageMesh() {
   material.toneMapped = true;
 
   const mesh = new THREE.Mesh(geometry, material);
-  mesh.castShadow = PERFORMANCE.SHADOWS_ENABLED;
-  mesh.receiveShadow = PERFORMANCE.SHADOWS_ENABLED;
+  mesh.castShadow = false;
+  mesh.receiveShadow = false;
 
   function setFlipProgress(t) {
     uniforms.uFlip.value = THREE.MathUtils.clamp(t, 0, 1);

@@ -1,5 +1,10 @@
 import { createBookController } from "./bookController.js";
-import { getPageDominantColor, loadPageTextures, setPageTextureAnisotropy } from "./loadPageTextures.js";
+import {
+  disposePageTextures,
+  getPageDominantColor,
+  loadPageTextures,
+  setPageTextureAnisotropy
+} from "./loadPageTextures.js";
 
 let controller = null;
 
@@ -19,10 +24,10 @@ export async function initBook({ scene, onLoadingProgress, maxAnisotropy }) {
     setPageTextureAnisotropy(maxAnisotropy);
   }
 
-  const pageTextures = await loadPageTextures(20, {
+  const pageTextureStore = await loadPageTextures(20, {
     onProgress: onLoadingProgress
   });
-  controller = createBookController({ scene, pageTextures });
+  controller = createBookController({ scene, pageTextureStore });
   return controller;
 }
 
@@ -66,7 +71,10 @@ export function getBookPageDominantColor(pageNumber) {
 }
 
 export function disposeBook() {
-  if (!controller) return;
-  controller.dispose();
-  controller = null;
+  if (controller) {
+    controller.dispose();
+    controller = null;
+  }
+
+  disposePageTextures();
 }

@@ -1,11 +1,10 @@
 const PAGE_SEGMENTS = Object.freeze({
-  width: 96,
-  height: 56
+  width: 72,
+  height: 42
 });
 
 export const PERFORMANCE = Object.freeze({
-  MAX_DPR: 1.5,
-  SHADOWS_ENABLED: true,
+  MAX_DPR: 1.25,
   PAGE_SEGMENTS,
   STAR_COUNT: 250,
   TEXTURE_ANISOTROPY_MAX: 4,

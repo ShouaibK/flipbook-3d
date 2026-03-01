@@ -13,9 +13,6 @@ export function createRenderer() {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.2;
-  renderer.shadowMap.enabled = PERFORMANCE.SHADOWS_ENABLED;
-  if (PERFORMANCE.SHADOWS_ENABLED) {
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  }
+  renderer.shadowMap.enabled = false;
   return renderer;
 }

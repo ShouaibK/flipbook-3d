@@ -43,41 +43,18 @@ rimLight.position.set(-1.25, 1.35, -3.5);
 
 const keyLight = new THREE.DirectionalLight("#ffe9cb", 0.46);
 keyLight.position.set(1.8, 2.4, 2.2);
-keyLight.castShadow = PERFORMANCE.SHADOWS_ENABLED;
-if (PERFORMANCE.SHADOWS_ENABLED) {
-  keyLight.shadow.mapSize.set(1024, 1024);
-  keyLight.shadow.camera.near = 0.8;
-  keyLight.shadow.camera.far = 8;
-  keyLight.shadow.camera.left = -2;
-  keyLight.shadow.camera.right = 2;
-  keyLight.shadow.camera.top = 1.7;
-  keyLight.shadow.camera.bottom = -1.7;
-  keyLight.shadow.bias = -0.00018;
-  keyLight.shadow.normalBias = 0.018;
-}
 
 const fillLight = new THREE.DirectionalLight("#8ca3c7", 0.2);
 fillLight.position.set(-1.6, 0.9, 2.5);
 
 const ambientLight = new THREE.AmbientLight("#18212f", 0.24);
-const shadowCatcherGeometry = new THREE.PlaneGeometry(PAGE_WIDTH * 1.45, PAGE_HEIGHT * 1.2);
-const shadowCatcherMaterial = new THREE.ShadowMaterial({
-  color: new THREE.Color("#000000"),
-  opacity: 0.22
-});
-const shadowCatcher = new THREE.Mesh(shadowCatcherGeometry, shadowCatcherMaterial);
-shadowCatcher.rotation.x = -Math.PI * 0.5;
-shadowCatcher.position.set(0, -PAGE_HEIGHT * 0.54, -0.24);
-shadowCatcher.receiveShadow = PERFORMANCE.SHADOWS_ENABLED;
-shadowCatcher.visible = PERFORMANCE.SHADOWS_ENABLED;
-shadowCatcher.renderOrder = 0;
 
 const lightTarget = new THREE.Object3D();
 lightTarget.position.set(0, 0, 0);
 scene.add(lightTarget);
 keyLight.target = lightTarget;
 
-scene.add(shadowCatcher, rimLight, keyLight, fillLight, ambientLight);
+scene.add(rimLight, keyLight, fillLight, ambientLight);
 
 const renderer = createRenderer();
 container.appendChild(renderer.domElement);
@@ -574,9 +551,7 @@ function dispose() {
   dragFlipInteraction.dispose();
   disposeBook();
   particleSystem.dispose();
-  scene.remove(shadowCatcher, keyLight, fillLight, ambientLight, lightTarget, rimLight);
-  shadowCatcherGeometry.dispose();
-  shadowCatcherMaterial.dispose();
+  scene.remove(keyLight, fillLight, ambientLight, lightTarget, rimLight);
   renderer.dispose();
 }
 
