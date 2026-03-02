@@ -489,10 +489,16 @@ export function createBookController({ scene, pageTextureStore }) {
       if (t >= 1) {
         const shouldComplete = snapAnimation.completeOnFinish && snapAnimation.to >= 1;
         if (shouldComplete) {
-          completeFlip();
-        } else {
-          revertFlip();
-        }
+  // hold fully-turned pose before completing
+  flipProgress = 1;
+  setFlipProgress(1, { applyEase: false });
+  endHold = { elapsed: 0 };
+  snapAnimation = null;
+  isFlipping = false;
+  isDragging = false;
+} else {
+  revertFlip();
+}
       }
     } else if (isFlipping) {
       const step = dt * FLIP_SPEED;
