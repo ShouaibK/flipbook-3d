@@ -24,7 +24,7 @@ export async function initBook({ scene, onLoadingProgress, maxAnisotropy }) {
     setPageTextureAnisotropy(maxAnisotropy);
   }
 
-  const pageTextureStore = await loadPageTextures(20, {
+  const pageTextureStore = await loadPageTextures(16, {
     onProgress: onLoadingProgress
   });
   controller = createBookController({ scene, pageTextureStore });

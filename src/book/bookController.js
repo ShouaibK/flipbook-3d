@@ -4,7 +4,7 @@ import { getDominantColorFromUrl } from "../utils/colorExtract.js";
 import { debugLog } from "../utils/debug.js";
 
 const FLIP_SPEED = 0.5;
-const TOTAL_PAGES = 20;
+const TOTAL_PAGES = 16;
 const SNAP_DURATION_SECONDS = 0.36;
 const MAX_TURN_ROTATION_Y = -Math.PI;
 const LEFT_HINGE_X = -PAGE_WIDTH * 0.5;

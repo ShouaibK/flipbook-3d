@@ -124,9 +124,10 @@ const overlayUI = createOverlayUI({
   }
 });
 
+const TOTAL_PAGES = 16;
 const overlayViewState = {
   currentPage: 1,
-  totalPages: 20,
+  totalPages: TOTAL_PAGES,
   muted: uiState.muted,
   autoplayEnabled: uiState.autoplayEnabled,
   autoplaySpeed: uiState.autoplaySpeed,
@@ -219,7 +220,7 @@ function updateOverlayUI() {
   const controller = getBookController();
   const state = controller?.getState();
   const nextCurrentPage = state?.currentPage ?? 1;
-  const nextTotalPages = state?.totalPages ?? 20;
+  const nextTotalPages = state?.totalPages ?? TOTAL_PAGES;
   const nextIsBusy = state?.isBusy ?? false;
   const nextMuted = uiState.muted;
   const nextAutoplayEnabled = uiState.autoplayEnabled;

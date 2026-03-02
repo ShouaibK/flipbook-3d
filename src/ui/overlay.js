@@ -26,7 +26,7 @@ export function createOverlayUI({
 
   const pageCounter = document.createElement("div");
   pageCounter.className = "overlay-ui__counter";
-  pageCounter.textContent = "01 / 20";
+  pageCounter.textContent = "01 / 16";
 
   const nextButton = document.createElement("button");
   nextButton.type = "button";
@@ -103,7 +103,7 @@ export function createOverlayUI({
 
   function update({
     currentPage = 1,
-    totalPages = 20,
+    totalPages = 16,
     muted = false,
     autoplayEnabled = false,
     autoplaySpeed = 1,

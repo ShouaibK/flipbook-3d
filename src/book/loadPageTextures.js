@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { extractDominantColor, getCachedDominantColor } from "../utils/colorExtract.js";
 import { PERFORMANCE } from "../config.js";
 
-const DEFAULT_TOTAL_PAGES = 20;
+const DEFAULT_TOTAL_PAGES = 16;
 const ACTIVE_RADIUS = 1;
 const PAGE_PATH_PREFIX = `${import.meta.env.BASE_URL}pages`;
 const PAGE_FILE_PREFIX = "book_";
