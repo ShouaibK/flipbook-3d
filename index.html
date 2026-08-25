@@ -445,6 +445,55 @@ function setUV(g,mirror){
   g.attributes.uv.needsUpdate=true;
 }
 
+/* The gutter is a painted approximation, not real geometry, so the profile is
+   built by hand: a tight dark core, a brighter shoulder on the side the light
+   comes from, and a slight fade towards the head and foot of the page. */
+function gutterTex(){
+  const w=256,h=128,c=document.createElement("canvas");
+  c.width=w; c.height=h;
+  const cx=c.getContext("2d"), img=cx.createImageData(w,h), d=img.data;
+  let k=0;
+  for(let j=0;j<h;j++){
+    const v=(j/(h-1))*2-1;
+    const vfall=1-0.30*Math.pow(Math.abs(v),4);      // lighter at head and foot
+    for(let i=0;i<w;i++,k+=4){
+      const u=(i/(w-1))*2-1;
+      // core: tight, exponential — a linear ramp does not read as paper
+      const wid=u<0?0.30:0.26;                       // light is up-left, so the
+      const amp=u<0?1.00:0.82;                       // left wall sits deeper in shade
+      let dark=amp*Math.exp(-(u/wid)*(u/wid))*vfall;
+      // shoulder: paper lifting out of the gutter catches the light
+      const sh=0.16*Math.exp(-Math.pow((u-0.42)/0.20,2))*vfall;
+      dark=Math.max(0,dark-sh*0.35);
+      if(sh>dark){
+        d[k]=255; d[k+1]=250; d[k+2]=242; d[k+3]=Math.round(255*Math.min(.13,sh*.55));
+      }else{
+        d[k]=58; d[k+1]=43; d[k+2]=29; d[k+3]=Math.round(255*Math.min(.5,dark*.46));
+      }
+    }
+  }
+  cx.putImageData(img,0,0);
+  const t=new T3.CanvasTexture(c);
+  if(T3.SRGBColorSpace) t.colorSpace=T3.SRGBColorSpace;
+  return t;
+}
+/* Blurred rounded rectangle used as the book's contact shadow. */
+function dropTex(){
+  const n=256,c=document.createElement("canvas");
+  c.width=c.height=n;
+  const x=c.getContext("2d");
+  x.filter="blur("+Math.round(n*0.045)+"px)";
+  x.fillStyle="rgba(72,53,36,0.95)";
+  const p=n*0.115, r=n*0.035;
+  x.beginPath();
+  if(x.roundRect) x.roundRect(p,p,n-2*p,n-2*p,r);
+  else x.rect(p,p,n-2*p,n-2*p);
+  x.fill();
+  const t=new T3.CanvasTexture(c);
+  if(T3.SRGBColorSpace) t.colorSpace=T3.SRGBColorSpace;
+  return t;
+}
+
 function initGL(){
   try{
     const r=new T3.WebGLRenderer({canvas:CVS,antialias:true,alpha:true,powerPreference:"high-performance"});
@@ -495,16 +544,15 @@ function initGL(){
     G.slabR=new T3.Mesh(new T3.BoxGeometry(1,1,1),sm);
     [G.slabL,G.slabR].forEach(m=>{ m.receiveShadow=!!CONFIG.shadows; G.book.add(m); });
   }
-  // soft darkening in the gutter
-  const cc=document.createElement("canvas"); cc.width=64; cc.height=4;
-  const cg=cc.getContext("2d");
-  const lg=cg.createLinearGradient(0,0,64,0);
-  lg.addColorStop(0,"rgba(60,44,30,0)"); lg.addColorStop(.5,"rgba(60,44,30,.42)"); lg.addColorStop(1,"rgba(60,44,30,0)");
-  cg.fillStyle=lg; cg.fillRect(0,0,64,4);
-  const gt=new T3.CanvasTexture(cc);
   G.gutter=new T3.Mesh(new T3.PlaneGeometry(1,1),
-    new T3.MeshBasicMaterial({map:gt,transparent:true,depthWrite:false}));
+    new T3.MeshBasicMaterial({map:gutterTex(),transparent:true,depthWrite:false}));
   G.book.add(G.gutter);
+
+  // Soft shadow under the whole book, so it sits on the page instead of floating.
+  G.drop=new T3.Mesh(new T3.PlaneGeometry(1,1),
+    new T3.MeshBasicMaterial({map:dropTex(),transparent:true,depthWrite:false,opacity:.5}));
+  G.drop.renderOrder=-1;
+  G.book.add(G.drop);
   return true;
 }
 
@@ -600,7 +648,7 @@ function place(){
   const {W,H}=dims();
   G.pageL.scale.set(W,H,1); G.pageR.scale.set(W,H,1);
   G.pageL.position.set(-W/2,0,0); G.pageR.position.set(W/2,0,0);
-  G.gutter.scale.set(W*0.30,H,1); G.gutter.position.set(0,0,0.0024);
+  G.gutter.scale.set(W*0.42,H,1); G.gutter.position.set(0,0,0.0024);
   if(G.slabL){
     const th=0.012;
     const a=Math.max(1,S.s), b=Math.max(1,S.nSheets-S.s);
@@ -655,6 +703,16 @@ function scene(){
   // depth test alone hides it exactly where the turning page covers it. No fade,
   // no opacity animation — nothing to pop at the end of a turn.
   G.gutter.visible=!S.single&&G.pageL.visible&&G.pageR.visible;
+  const dx0=S.single?-W/2:(G.pageL.visible?-W:0);
+  const dx1=S.single? W/2:(G.pageR.visible? W:0);
+  if(dx1>dx0){
+    const bw=dx1-dx0, pad=H*0.075;
+    G.drop.scale.set(bw+pad*2,H+pad*2,1);
+    // pushed down-right, away from the light, so the lit edges stay clean and
+    // only the far side shows — contact, not a halo
+    G.drop.position.set((dx0+dx1)/2+H*0.020,-H*0.028,-0.05);
+    G.drop.visible=true;
+  } else G.drop.visible=false;
   if(G.slabL){ G.slabL.visible=!S.single&&G.pageL.visible; G.slabR.visible=!S.single&&G.pageR.visible; }
 
   // The flap must be on screen for EVERY frame in which the pages beneath it
