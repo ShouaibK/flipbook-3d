@@ -577,12 +577,16 @@ function place(){
     G.slabR.scale.set(W,H,dr); G.slabR.position.set(W/2,0,-dr/2-0.001);
   }
 }
-function setPage(mesh,p){
-  const t=p?texOf(p):null;
+/* blank=true keeps a plain paper quad where a page does not exist — the inside
+   of a cover. Without it the mesh switches off and you see straight through the
+   book, which is what a peel at the first or last spread used to do. */
+function setPage(mesh,p,blank){
+  const ok=!!p&&p>=1&&p<=S.n;
+  const t=ok?texOf(p):null;
   mesh.material.map=t||null;
   mesh.material.color.setHex(t?0xffffff:0xfbf8f4);
   mesh.material.needsUpdate=true;
-  mesh.visible=!!p&&p>=1&&p<=S.n;
+  mesh.visible=ok||!!blank;
 }
 function scene(){
   if(S.flat) return flatDraw();
@@ -593,11 +597,11 @@ function scene(){
   let PHI=-1,sgn=1,front=0,back=0,shift;
   if(a){
     shift=shiftX(a.s0)+(shiftX(a.s1)-shiftX(a.s0))*a.pe;
-    setPage(G.pageL,a.underL); setPage(G.pageR,a.underR);
+    setPage(G.pageL,a.underL,true); setPage(G.pageR,a.underR,true);
     sgn=a.sgn; front=a.front; back=a.back; PHI=a.phi;
   }else if(dr){
     shift=shiftX(dr.s0)+(shiftX(dr.s1)-shiftX(dr.s0))*Math.min(1,dr.t*1.9);
-    setPage(G.pageL,dr.underL); setPage(G.pageR,dr.underR);
+    setPage(G.pageL,dr.underL,true); setPage(G.pageR,dr.underR,true);
     sgn=dr.sgn; front=dr.front; back=dr.back; PHI=dr.phi;
   }else{
     shift=shiftX(S.s);
@@ -609,7 +613,7 @@ function scene(){
     }
     if(pl){
       sgn=pl.sgn; front=pl.front; back=pl.back;
-      if(sgn>0) setPage(G.pageR,pl.under); else setPage(G.pageL,pl.under);
+      if(sgn>0) setPage(G.pageR,pl.under,true); else setPage(G.pageL,pl.under,true);
       PHI=pl.phi;
     }
   }
@@ -617,7 +621,10 @@ function scene(){
   G.gutter.visible=!S.single&&G.pageL.visible&&G.pageR.visible;
   if(G.slabL){ G.slabL.visible=!S.single&&G.pageL.visible; G.slabR.visible=!S.single&&G.pageR.visible; }
 
-  const on=PHI>0.0005;
+  // The flap must be on screen for EVERY frame in which the pages beneath it
+  // were swapped — otherwise the first frame of a peel or turn (phi == 0) shows
+  // the page two ahead with nothing covering it, which reads as a hard flash.
+  const on=!!(a||dr||pl);
   G.flapF.visible=on; G.flapB.visible=on;
   if(on){
     G.gF.setIndex(sgn>0?G.gF.userData.iA:G.gF.userData.iB);
