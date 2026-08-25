@@ -39,7 +39,8 @@ const CONFIG = {
   thickness: true,      // book ki motai (page stack)
   portraitRotate: 1,    // phone portrait me book 90° ghumao: 1, doosri taraf: -1, band: 0
   gutter: 1.0,          // spine ke saye ki gehrai (0 = band, 1.6 = gehra)
-  gutterWidth: 0.62     // spine ka saya page ki chaudai ke kitne hisse par phaile
+  gutterWidth: 0.62,    // spine ka saya page ki chaudai ke kitne hisse par phaile
+  gutterBias: 1.0       // daayen deewar ki chaudai baayen ke muqable (1 = barabar)
 };
 </script>
 
@@ -452,6 +453,7 @@ function setUV(g,mirror){
    comes from, and a slight fade towards the head and foot of the page. */
 function gutterTex(){
   const GUT=CONFIG.gutter!=null?CONFIG.gutter:1;
+  const BIAS=CONFIG.gutterBias!=null?CONFIG.gutterBias:1;
   const w=256,h=128,c=document.createElement("canvas");
   c.width=w; c.height=h;
   const cx=c.getContext("2d"), img=cx.createImageData(w,h), d=img.data;
@@ -462,16 +464,20 @@ function gutterTex(){
     for(let i=0;i<w;i++,k+=4){
       const u=(i/(w-1))*2-1;
       // core: tight, exponential — a linear ramp does not read as paper
-      const wid=u<0?0.40:0.35;                       // light is up-left, so the
-      const amp=u<0?1.00:0.84;                       // left wall sits deeper in shade
-      let dark=amp*Math.exp(-(u/wid)*(u/wid))*vfall;
+      // Both walls rise from the SAME darkest point at the spine. Putting the
+      // asymmetry in the peak instead left a one-pixel step at u=0, which is what
+      // read as a hard edge — so any left/right difference goes into the width.
+      const wid=(u<0?0.42:0.42*BIAS);
+      const dark=Math.exp(-(u/wid)*(u/wid))*vfall;
       // shoulder: paper lifting out of the gutter catches the light
-      const sh=0.13*Math.exp(-Math.pow((u-0.55)/0.24,2))*vfall;
-      dark=Math.max(0,dark-sh*0.35);
-      if(sh>dark){
-        d[k]=255; d[k+1]=250; d[k+2]=242; d[k+3]=Math.round(255*Math.min(.08,sh*.42)*GUT);
+      const sh=0.07*Math.exp(-Math.pow((u-0.52)/0.30,2))*vfall;
+      // One continuous value, not a branch. Switching colour where shadow meets
+      // highlight left a visible seam, because the two alphas did not meet at zero.
+      const net=dark-sh;
+      if(net>=0){
+        d[k]=58; d[k+1]=43; d[k+2]=29; d[k+3]=Math.round(255*Math.min(.30,net*.26)*GUT);
       }else{
-        d[k]=58; d[k+1]=43; d[k+2]=29; d[k+3]=Math.round(255*Math.min(.30,dark*.26)*GUT);
+        d[k]=255; d[k+1]=250; d[k+2]=242; d[k+3]=Math.round(255*Math.min(.07,-net*.30)*GUT);
       }
     }
   }
