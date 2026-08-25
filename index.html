@@ -432,7 +432,7 @@ function initGL(){
   try{
     const r=new T3.WebGLRenderer({canvas:CVS,antialias:true,alpha:true,powerPreference:"high-performance"});
     r.setClearColor(0x000000,0);
-    if(CONFIG.shadows){ r.shadowMap.enabled=true; r.shadowMap.type=T3.PCFShadowMap; }
+    if(CONFIG.shadows){ r.shadowMap.enabled=true; r.shadowMap.type=T3.PCFSoftShadowMap; }
     if(T3.SRGBColorSpace) r.outputColorSpace=T3.SRGBColorSpace;
     G.r=r; G.maxAniso=r.capabilities.getMaxAnisotropy();
   }catch(e){ return false; }
@@ -443,16 +443,17 @@ function initGL(){
 
   // three.js divides ambient/directional irradiance by PI, so these look large:
   // measured, they put a flat page at exactly its texture colour (192,68,30 vs 192,69,31).
-  G.scene.add(new T3.AmbientLight(0xffffff,2.04));
-  const dir=new T3.DirectionalLight(0xfff6ec,1.416);
-  dir.position.set(-1.5,2.0,2.1);
+  G.scene.add(new T3.AmbientLight(0xffffff,2.36));
+  const dir=new T3.DirectionalLight(0xfff6ec,0.98);
+  dir.position.set(-0.85,1.5,2.9);
   if(CONFIG.shadows){
     dir.castShadow=true;
-    dir.shadow.mapSize.set(768,768);
-    dir.shadow.camera.near=.1; dir.shadow.camera.far=14;
-    dir.shadow.camera.left=-2.4; dir.shadow.camera.right=2.4;
-    dir.shadow.camera.top=2.4; dir.shadow.camera.bottom=-2.4;
-    dir.shadow.bias=-0.0009; dir.shadow.normalBias=0.02; dir.shadow.radius=3;
+    dir.shadow.mapSize.set(1024,1024);
+    dir.shadow.camera.near=1.4; dir.shadow.camera.far=6.5;
+    // fitted to the book, not a huge square: 4x the texel density of before
+    dir.shadow.camera.left=-1.35; dir.shadow.camera.right=1.35;
+    dir.shadow.camera.top=1.0; dir.shadow.camera.bottom=-1.0;
+    dir.shadow.bias=-0.0004; dir.shadow.normalBias=0.004; dir.shadow.radius=5;
   }
   G.scene.add(dir); G.dir=dir;
 
@@ -469,7 +470,7 @@ function initGL(){
   G.flapF=new T3.Mesh(G.gF,paperMat());
   G.flapZ=0.0016;
   G.flapB=new T3.Mesh(G.gB,new T3.MeshLambertMaterial({color:0xffffff,side:T3.BackSide}));
-  [G.flapF,G.flapB].forEach(m=>{ m.castShadow=!!CONFIG.shadows; m.receiveShadow=!!CONFIG.shadows; m.visible=false; G.book.add(m); });
+  [G.flapF,G.flapB].forEach(m=>{ m.castShadow=!!CONFIG.shadows; m.receiveShadow=false; m.visible=false; G.book.add(m); });
 
   if(CONFIG.thickness){
     const sm=new T3.MeshLambertMaterial({color:0xece5da});
@@ -567,7 +568,7 @@ function place(){
   const {W,H}=dims();
   G.pageL.scale.set(W,H,1); G.pageR.scale.set(W,H,1);
   G.pageL.position.set(-W/2,0,0); G.pageR.position.set(W/2,0,0);
-  G.gutter.scale.set(W*0.30,H,1); G.gutter.position.set(0,0,0.002);
+  G.gutter.scale.set(W*0.30,H,1); G.gutter.position.set(0,0,0.0024);
   if(G.slabL){
     const th=0.012;
     const a=Math.max(1,S.s), b=Math.max(1,S.nSheets-S.s);
@@ -618,6 +619,9 @@ function scene(){
     }
   }
   G.book.position.x=shift;
+  // The gutter sits just above the flat page but far below a lifted one, so the
+  // depth test alone hides it exactly where the turning page covers it. No fade,
+  // no opacity animation — nothing to pop at the end of a turn.
   G.gutter.visible=!S.single&&G.pageL.visible&&G.pageR.visible;
   if(G.slabL){ G.slabL.visible=!S.single&&G.pageL.visible; G.slabR.visible=!S.single&&G.pageR.visible; }
 
@@ -1158,7 +1162,7 @@ function resolvePdf(t){
 }
 function sameOrigin(t){ try{ return new URL(t,document.baseURI).origin===location.origin; }catch(e){ return false; } }
 
-window.__fbdbg={get S(){return S},scene,dims};
+window.__fbdbg={get S(){return S},get G(){return G},get T3(){return T3},scene,dims};
 let booted=false;
 window.__flipbook=function(lib,three){
   if(booted) return;
