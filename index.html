@@ -525,9 +525,16 @@ function fitCamera(){
   // Rolling the camera 90° swaps which screen axis each world axis lands on,
   // so the two fit limits swap with it.
   G.cam.rotation.z=S.roll*Math.PI/2;
-  G.cam.position.z = S.roll
+  const D = S.roll
     ? Math.max(halfW/t, halfH/(t*G.cam.aspect))
     : Math.max(halfH/t, halfW/(t*G.cam.aspect));
+  G.cam.position.set(0,0,D);
+  // The canvas sits between a header and a toolbar of different heights, so its
+  // middle is not the window's middle. Nudge the camera so the book lands on the
+  // window's centre. translateY is along the camera's own up axis, so this stays
+  // correct when the view is rolled for portrait.
+  const dyPx=(window.innerHeight/2)-(st.top+h/2);
+  if(Math.abs(dyPx)>0.5) G.cam.translateY(dyPx*(2*t*D)/h);
   G.cam.updateProjectionMatrix();
   S.MW=Math.min(1700,Math.max(700,Math.round(w*S.DPR/(S.single?1:2)/100)*100));
 }
