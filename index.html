@@ -36,7 +36,8 @@ const CONFIG = {
   peelSpan: 0.45,       // page ka kitna hissa peel me shaamil ho (0.3 = sirf kona)
   peelCurl: 2.6,        // kona kitna tight roll kare
   shadows: true,        // turning page ka shadow neeche wale pages par
-  thickness: true       // book ki motai (page stack)
+  thickness: true,      // book ki motai (page stack)
+  portraitRotate: 1     // phone portrait me book 90° ghumao: 1, doosri taraf: -1, band: 0
 };
 </script>
 
@@ -79,6 +80,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   width:52px;height:52px;display:grid;place-items:center;color:#b9aca2;
   transition:color .18s,transform .18s,opacity .18s}
 .chev.l{left:6px} .chev.r{right:6px}
+.stage.rolled .chev{top:auto;bottom:auto;left:50%;right:auto}
+.stage.rolled .chev.l{top:6px;transform:translateX(-50%) rotate(90deg)}
+.stage.rolled .chev.r{bottom:6px;transform:translateX(-50%) rotate(90deg)}
+.stage.rolled .chev.l:hover:not(:disabled){transform:translateX(-50%) rotate(90deg) translateX(-3px)}
+.stage.rolled .chev.r:hover:not(:disabled){transform:translateX(-50%) rotate(90deg) translateX(3px)}
 .chev svg{width:34px;height:34px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
 .chev:hover:not(:disabled){color:var(--accent)}
 .chev.l:hover:not(:disabled){transform:translateY(-50%) translateX(-3px)}
@@ -176,6 +182,17 @@ body.dragging .drop{display:block}
   .pill{margin-bottom:14px}
   .tool{width:40px;height:40px}
   .thumb{width:72px}
+}
+/* phone on its side: every pixel of height belongs to the book */
+@media (max-height:540px) and (orientation:landscape){
+  .head{display:none}
+  .pill{margin-bottom:7px}
+  .pill .pg{padding:0 11px;font-size:12px}
+  .tool{width:36px;height:36px}
+  .tool svg{width:18px;height:18px}
+  .chev{width:40px;height:40px}
+  .chev svg{width:26px;height:26px}
+  .panel{max-height:min(74vh,300px)}
 }
 @media (prefers-reduced-motion:reduce){ .panel,.thumb{transition-duration:1ms} }
 </style>
@@ -299,7 +316,7 @@ const S={
   cache:new Map(),pending:new Map(),
   sound:CONFIG.soundOn,src:null,zp:1,zscale:1.6,
   MW:900,DPR:1,
-  anim:null,q:0,peel:null,drag:null,
+  anim:null,q:0,peel:null,drag:null,roll:0,
   gl:null,flat:false
 };
 
@@ -505,7 +522,12 @@ function fitCamera(){
   const {W,H}=dims();
   const halfW=(S.single?W/2:W)*1.10, halfH=H/2*1.14;
   const t=Math.tan(G.cam.fov*Math.PI/360);
-  G.cam.position.z=Math.max(halfH/t, halfW/(t*G.cam.aspect));
+  // Rolling the camera 90° swaps which screen axis each world axis lands on,
+  // so the two fit limits swap with it.
+  G.cam.rotation.z=S.roll*Math.PI/2;
+  G.cam.position.z = S.roll
+    ? Math.max(halfW/t, halfH/(t*G.cam.aspect))
+    : Math.max(halfH/t, halfW/(t*G.cam.aspect));
   G.cam.updateProjectionMatrix();
   S.MW=Math.min(1700,Math.max(700,Math.round(w*S.DPR/(S.single?1:2)/100)*100));
 }
@@ -752,7 +774,15 @@ function chrome(){
 }
 function layout(){
   const wasSingle=S.single;
-  S.single=S.forceSingle||window.innerWidth<760;
+  const narrow=window.innerWidth<760;
+  const portrait=window.innerHeight>window.innerWidth;
+  // A phone held upright cannot show an A4 spread at a readable size, so turn the
+  // book sideways instead of falling back to a single page. Rotate the phone to
+  // landscape and it straightens out on its own.
+  S.roll=(!S.forceSingle&&narrow&&portrait&&CONFIG.portraitRotate)?CONFIG.portraitRotate:0;
+  // landscape always has room for a spread, however narrow the phone is
+  S.single=S.forceSingle||(narrow&&portrait&&!S.roll);
+  $("stage").classList.toggle("rolled",!!S.roll);
   if(wasSingle!==S.single&&S.n){
     if(S.single) S.page=first(); else S.s=(S.page<=1)?0:Math.floor(S.page/2);
   }
@@ -884,6 +914,8 @@ function endDrag(){
   CVS.classList.remove("grabbing");
   const dir=d.dir, t=d.t;
   S.drag=null;
+  // pressed a corner and let go without dragging: that is a click, so turn the page
+  if(!moved||t<0.035){ dir>0?next():prev(); return; }
   if(t>0.40){ startTurn(dir,t); }
   else{
     const t0=performance.now(), from=t;
@@ -905,7 +937,11 @@ CVS.addEventListener("pointerup",e=>{
   if(S.drag&&!S.drag.releasing){ endDrag(); tracking=false; return; }
   if(!tracking) return; tracking=false;
   const dx=e.clientX-sx, dy=e.clientY-sy;
-  if(Math.abs(dx)>52&&Math.abs(dx)>Math.abs(dy)*1.6){ swipedAt=Date.now(); dx<0?next():prev(); return; }
+  // when the book is turned sideways the page travels up/down the screen
+  const along=S.roll? dy*S.roll : dx, across=S.roll? dx : dy;
+  if(Math.abs(along)>52&&Math.abs(along)>Math.abs(across)*1.6){
+    swipedAt=Date.now(); along<0?next():prev(); return;
+  }
   if(Math.abs(dx)>8||Math.abs(dy)>8) return;
   const b=toBook(e.clientX,e.clientY); if(!b) return;
   const {W,H}=dims();
