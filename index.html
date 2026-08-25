@@ -529,11 +529,14 @@ function fitCamera(){
     ? Math.max(halfW/t, halfH/(t*G.cam.aspect))
     : Math.max(halfH/t, halfW/(t*G.cam.aspect));
   G.cam.position.set(0,0,D);
-  // The canvas sits between a header and a toolbar of different heights, so its
-  // middle is not the window's middle. Nudge the camera so the book lands on the
-  // window's centre. translateY is along the camera's own up axis, so this stays
-  // correct when the view is rolled for portrait.
-  const dyPx=(window.innerHeight/2)-(st.top+h/2);
+  // Centre the book in the space a reader actually sees as empty: from the top of
+  // the window down to the toolbar. That keeps the gap above the book equal to the
+  // gap below it, whether or not a header is showing, and never crowds the toolbar.
+  // translateY runs along the camera's own up axis, so this also holds when the
+  // view is rolled for portrait.
+  const pill=document.querySelector(".pill").getBoundingClientRect();
+  const target=(pill.top>0?pill.top:window.innerHeight)/2;
+  const dyPx=target-(st.top+h/2);
   if(Math.abs(dyPx)>0.5) G.cam.translateY(dyPx*(2*t*D)/h);
   G.cam.updateProjectionMatrix();
   S.MW=Math.min(1700,Math.max(700,Math.round(w*S.DPR/(S.single?1:2)/100)*100));
