@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>AK Trading House — Company Profile</title>
 <meta name="description" content="AK Trading House company profile. Edible oil, ghee and industrial fats — quality products, reliable supply, lasting partnerships. Since 2020.">
-
-<!-- Link preview. Repo ya username badle to yeh dono URL bhi badalna. -->
+ 
+<!-- ⚠ LINK PREVIEW — Vercel par deploy karte waqt neeche wale teen URL apne
+     Vercel domain se badal dein (og:image, og:url, canonical). Warna WhatsApp /
+     LinkedIn par share karne par preview blank aayega. -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="AK Trading House — Company Profile">
 <meta property="og:description" content="Edible oil, ghee and industrial fats. Quality products, reliable supply, lasting partnerships.">
@@ -17,7 +19,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://shouaibk.github.io/flipbook-3d/">
 <meta name="theme-color" content="#faf6f2">
-
+ 
 <!-- ══════════════════════════════════════════════════════════
      SETTINGS
      ══════════════════════════════════════════════════════════ -->
@@ -28,15 +30,18 @@ const CONFIG = {
   soundOn: true,
   showDownload: true,
   startPage: 1,
-  flexibility: 0.9,     // page kitna mudta hai (0 = flat, 1.2 = bohot)
-  flipMs: 800           // ek page turn ka time
+  flipMs: 620,          // ek page turn ka time (chhota = tez)
+  flexibility: 0.9,     // page kitna mudta hai (0 = flat board, 1.2 = bohot)
+  peel: 1.0,            // hover par kona kitna uthe (0-1.4)
+  shadows: true,        // turning page ka shadow neeche wale pages par
+  thickness: true       // book ki motai (page stack)
 };
 </script>
-
+ 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
-
+ 
 <style>
 :root{
   --page:#faf6f2; --ink:#3a3330; --muted:#8b8179; --line:#e6ddd5;
@@ -51,18 +56,23 @@ html,body{height:100%}
 body{background:var(--page);color:var(--ink);font-family:var(--ui);overflow:hidden;-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
-
+ 
 .app{display:flex;flex-direction:column;height:100dvh;position:relative}
-
+ 
 .head{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:16px 22px 4px}
 .brand{font-family:var(--display);font-size:19px;letter-spacing:.01em;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .spacer{flex:1}
-
+ 
 /* ── stage ─────────────────────────────────────────── */
 .stage{flex:1;min-height:0;position:relative;touch-action:pan-y;overflow:hidden}
-#cv{position:absolute;inset:0;width:100%;height:100%;display:block}
-
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y}
+#cv.grab{cursor:grab} #cv.grabbing{cursor:grabbing}
+.flat{position:absolute;inset:0;display:none;place-items:center;gap:0}
+.flat.on{display:grid}
+.flat .pg{display:flex;box-shadow:0 10px 34px rgba(70,50,34,.26)}
+.flat img{display:block;height:auto;background:#fff}
+ 
 .chev{position:absolute;top:50%;transform:translateY(-50%);z-index:20;
   width:52px;height:52px;display:grid;place-items:center;color:#b9aca2;
   transition:color .18s,transform .18s,opacity .18s}
@@ -72,7 +82,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .chev.l:hover:not(:disabled){transform:translateY(-50%) translateX(-3px)}
 .chev.r:hover:not(:disabled){transform:translateY(-50%) translateX(3px)}
 .chev:disabled{opacity:.22;cursor:default}
-
+ 
 /* ── toolbar pill ──────────────────────────────────── */
 .pill{flex:0 0 auto;margin:0 auto 20px;display:flex;align-items:center;
   background:var(--chrome);border:1px solid var(--line);border-radius:12px;
@@ -85,7 +95,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .tool[aria-pressed="true"]{color:var(--accent)}
 .tool:disabled{opacity:.3;cursor:default}
 .tool svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-
+ 
 .more-wrap{position:relative}
 .menu{position:absolute;bottom:calc(100% + 10px);right:0;min-width:184px;
   background:var(--chrome);border:1px solid var(--line);border-radius:11px;
@@ -95,7 +105,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   border-radius:7px;font-size:13.5px;color:var(--ink);text-align:left}
 .menu button:hover{background:#f3ece6}
 .menu svg{width:17px;height:17px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-
+ 
 /* ── panels ────────────────────────────────────────── */
 .panel{position:absolute;left:0;right:0;bottom:0;z-index:70;background:var(--chrome);
   border-top:1px solid var(--line);transform:translateY(101%);visibility:hidden;
@@ -107,7 +117,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .panel-head{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line)}
 .panel-head h2{font-family:var(--display);font-size:16px;font-weight:500}
 .panel-body{overflow-y:auto;padding:16px;overscroll-behavior:contain}
-
+ 
 .thumbs{display:flex;gap:13px;flex-wrap:wrap}
 .thumb{width:86px;border-radius:4px;overflow:hidden;border:1px solid var(--line);background:#fff;
   transition:border-color .15s,transform .15s,box-shadow .15s}
@@ -116,20 +126,20 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .thumb img,.thumb .ph{display:block;width:100%;aspect-ratio:var(--ar,.72);object-fit:cover;background:#f1eae3}
 .thumb span{display:block;text-align:center;font-size:11px;color:var(--muted);padding:4px 0;font-variant-numeric:tabular-nums}
 .thumb.here span{color:var(--accent)}
-
+ 
 .toc{list-style:none;display:flex;flex-direction:column;gap:1px}
 .toc button{width:100%;text-align:left;display:flex;gap:14px;align-items:baseline;padding:9px 11px;border-radius:7px;font-size:14px}
 .toc button:hover{background:#f3ece6}
 .toc .pg{margin-left:auto;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
 .toc .lvl2{padding-left:26px;color:var(--muted);font-size:13px}
-
+ 
 /* ── zoom ──────────────────────────────────────────── */
 .zoom{position:fixed;inset:0;z-index:90;background:rgba(28,22,18,.94);display:none;overflow:auto;padding:20px;overscroll-behavior:contain}
 .zoom.open{display:block}
 .zoom img{display:block;margin:0 auto;max-width:none;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.5)}
 .zoom-bar{position:fixed;top:12px;right:14px;z-index:92;display:flex;gap:2px;
   background:var(--chrome);border:1px solid var(--line);border-radius:11px;padding:3px}
-
+ 
 /* ── intro / share ─────────────────────────────────── */
 .intro{position:absolute;inset:0;z-index:80;display:grid;place-items:center;background:var(--page);padding:24px;text-align:center}
 .intro.gone{display:none}
@@ -147,12 +157,12 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 @keyframes sp{to{transform:rotate(360deg)}}
 .drop{position:fixed;inset:12px;border:2px dashed var(--accent);border-radius:14px;display:none;z-index:95;pointer-events:none}
 body.dragging .drop{display:block}
-
+ 
 .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(10px);
   background:var(--ink);color:#fff;font-size:13px;padding:9px 16px;border-radius:999px;
   opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:99}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
+ 
 @media (max-width:760px){
   .head{padding:12px 16px 2px}
   .brand{font-size:16px}
@@ -168,23 +178,24 @@ body.dragging .drop{display:block}
 @media (prefers-reduced-motion:reduce){ .panel,.thumb{transition-duration:1ms} }
 </style>
 </head>
-
+ 
 <body>
 <div class="app">
-
+ 
   <header class="head">
     <div class="brand" id="brand">AK Trading House</div>
     <div class="spacer"></div>
   </header>
-
+ 
   <main class="stage" id="stage">
     <canvas id="cv"></canvas>
+    <div class="flat" id="flat"><div class="pg"><img id="flatL" alt=""><img id="flatR" alt=""></div></div>
     <button class="chev l" id="btnPrev" aria-label="Previous page">
       <svg viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg></button>
     <button class="chev r" id="btnNext" aria-label="Next page">
       <svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg></button>
   </main>
-
+ 
   <div class="pill" role="toolbar" aria-label="Flipbook controls">
     <div class="pg" id="count">– / –</div>
     <button class="tool" id="btnToc" title="Contents" hidden>
@@ -216,21 +227,21 @@ body.dragging .drop{display:block}
       </div>
     </div>
   </div>
-
+ 
   <section class="panel" id="panelThumbs" aria-hidden="true">
     <div class="panel-head"><h2>All pages</h2><div class="spacer"></div>
       <button class="tool" data-close="panelThumbs" aria-label="Close">
         <svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
     <div class="panel-body"><div class="thumbs" id="thumbs"></div></div>
   </section>
-
+ 
   <section class="panel" id="panelToc" aria-hidden="true">
     <div class="panel-head"><h2>Contents</h2><div class="spacer"></div>
       <button class="tool" data-close="panelToc" aria-label="Close">
         <svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
     <div class="panel-body"><ul class="toc" id="toc"></ul></div>
   </section>
-
+ 
   <div class="zoom" id="zoom">
     <div class="zoom-bar">
       <button class="tool" id="zOut" aria-label="Zoom out">
@@ -246,14 +257,14 @@ body.dragging .drop{display:block}
     </div>
     <img id="zoomImg" alt="">
   </div>
-
+ 
   <div class="intro" id="intro">
     <div class="intro-card" id="introCard"><div class="spin"></div><p>Opening the book…</p>
       <div class="prog"><i id="progBar"></i></div><p class="pct" id="progPct"></p></div>
   </div>
   <div class="drop"></div>
   <div class="toast" id="toast"></div>
-
+ 
   <noscript>
     <div class="intro" style="z-index:100">
       <div class="intro-card">
@@ -264,390 +275,605 @@ body.dragging .drop{display:block}
     </div>
   </noscript>
 </div>
-
+ 
 <script>
 (function(){
 "use strict";
 const $ = id => document.getElementById(id);
-const CVS = $("cv"), CTX = CVS.getContext("2d");
-CTX.imageSmoothingEnabled=true; CTX.imageSmoothingQuality="high";
-
-const THUMB_W = 170, CACHE_MAX = 22, NSTRIP = 90, CAM = 9.0;
-const FLEX = CONFIG.flexibility != null ? CONFIG.flexibility : 0.9;
-const DUR  = CONFIG.flipMs || 800;
-
-const S = {
-  doc:null, n:0, ratio:1.414, nSheets:0,
-  s:0, page:1, want:1,
-  single:false, forceSingle:false,
-  cache:new Map(), pending:new Map(),
-  sound:CONFIG.soundOn, src:null, zp:1, zscale:1.6,
-  W:0, H:0, PW:0, PH:0, DPR:1, MW:900,
-  anim:null, q:0
+const CVS=$("cv");
+ 
+const THUMB_W=170, CACHE_MAX=22;
+const DUR=CONFIG.flipMs||900;
+const FLEX=CONFIG.flexibility!=null?CONFIG.flexibility:0.9;
+const PEELMAX=CONFIG.peel!=null?CONFIG.peel:1.0;
+const PEELPHI=0.34;   // radians the grabbed corner lifts on hover
+const PEELCURL=2.6;   // how tightly that corner rolls
+ 
+const S={
+  doc:null,n:0,ratio:1.414,nSheets:0,
+  s:0,page:1,want:1,
+  single:false,forceSingle:false,
+  cache:new Map(),pending:new Map(),
+  sound:CONFIG.soundOn,src:null,zp:1,zscale:1.6,
+  MW:900,DPR:1,
+  anim:null,q:0,peel:null,drag:null,
+  gl:null,flat:false
 };
-
-/* ══ page-turn sound (generated, no audio file) ══ */
+ 
+/* ══ sound ══ */
 let actx=null;
 function swish(){
   if(!S.sound) return;
   try{
-    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
     if(actx.state==="suspended") actx.resume();
-    const dur=.34, sr=actx.sampleRate, buf=actx.createBuffer(1,Math.floor(sr*dur),sr), d=buf.getChannelData(0);
+    const dur=.36,sr=actx.sampleRate,buf=actx.createBuffer(1,Math.floor(sr*dur),sr),d=buf.getChannelData(0);
     for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*(1-i/d.length);
     const s0=actx.createBufferSource(); s0.buffer=buf;
-    const bp=actx.createBiquadFilter(); bp.type="bandpass"; bp.Q=.8;
-    bp.frequency.setValueAtTime(1600,actx.currentTime);
-    bp.frequency.exponentialRampToValueAtTime(340,actx.currentTime+dur);
+    const bp=actx.createBiquadFilter(); bp.type="bandpass"; bp.Q=.75;
+    bp.frequency.setValueAtTime(1700,actx.currentTime);
+    bp.frequency.exponentialRampToValueAtTime(330,actx.currentTime+dur);
     const g=actx.createGain();
     g.gain.setValueAtTime(.0001,actx.currentTime);
-    g.gain.exponentialRampToValueAtTime(.14,actx.currentTime+.06);
+    g.gain.exponentialRampToValueAtTime(.13,actx.currentTime+.07);
     g.gain.exponentialRampToValueAtTime(.0001,actx.currentTime+dur);
     s0.connect(bp); bp.connect(g); g.connect(actx.destination); s0.start();
   }catch(e){}
 }
-
-/* ══ render cache — decoded images, bounded, blob-backed ══ */
+ 
+/* ══ render cache ══ */
 function inUse(url){
   const im=document.images;
   for(let i=0;i<im.length;i++) if(im[i].src===url) return true;
   return false;
 }
-function cacheSet(key,entry){
-  S.cache.set(key,entry);
+function cacheSet(key,e){
+  S.cache.set(key,e);
   const big=[]; for(const k of S.cache.keys()) if(!k.endsWith("@"+THUMB_W)) big.push(k);
   while(big.length>CACHE_MAX){
-    const k=big.shift(), e=S.cache.get(k);
+    const k=big.shift(), x=S.cache.get(k);
     S.cache.delete(k);
-    if(e && !inUse(e.url)){ try{ URL.revokeObjectURL(e.url); }catch(x){} }
+    if(x){ if(x.tex) x.tex.dispose(); if(!inUse(x.url)){ try{ URL.revokeObjectURL(x.url); }catch(q){} } }
   }
 }
 function renderPage(n,width){
   const key=n+"@"+width;
   if(S.cache.has(key)) return Promise.resolve(S.cache.get(key));
   if(S.pending.has(key)) return S.pending.get(key);
-  const job = S.doc.getPage(n).then(p=>{
+  const job=S.doc.getPage(n).then(p=>{
     const base=p.getViewport({scale:1});
     const vp=p.getViewport({scale:width/base.width});
     const c=document.createElement("canvas");
     c.width=Math.ceil(vp.width); c.height=Math.ceil(vp.height);
     const cx=c.getContext("2d",{alpha:false});
     cx.fillStyle="#fff"; cx.fillRect(0,0,c.width,c.height);
-    return p.render({canvasContext:cx, viewport:vp}).promise.then(()=>
-      new Promise((res,rej)=>{
-        c.toBlob(b=>{
-          if(!b) return rej(new Error("encode failed"));
-          const url=URL.createObjectURL(b), img=new Image();
-          img.onload=()=>{ const e={url,img}; cacheSet(key,e); c.width=c.height=0; res(e); };
-          img.onerror=()=>rej(new Error("decode failed"));
-          img.src=url;
-        },"image/jpeg",.9);
-      })
-    );
+    return p.render({canvasContext:cx,viewport:vp}).promise.then(()=>new Promise((res,rej)=>{
+      c.toBlob(b=>{
+        if(!b) return rej(new Error("encode failed"));
+        const url=URL.createObjectURL(b), img=new Image();
+        img.onload=()=>{ const e={url,img,tex:null}; cacheSet(key,e); c.width=c.height=0; res(e); };
+        img.onerror=()=>rej(new Error("decode failed"));
+        img.src=url;
+      },"image/jpeg",.92);
+    }));
   });
   S.pending.set(key,job);
   job.then(()=>S.pending.delete(key),()=>S.pending.delete(key));
   return job;
 }
-function have(p){
+function entry(p){
   if(!p||p<1||p>S.n) return null;
-  const e=S.cache.get(p+"@"+S.MW);
-  return e ? e.img : null;
+  return S.cache.get(p+"@"+S.MW)||null;
 }
 function want(p){
   if(!p||p<1||p>S.n) return null;
-  const img=have(p);
-  if(img) return img;
-  renderPage(p,S.MW).then(()=>{ if(!S.anim) draw(); }).catch(()=>{});
+  const e=entry(p);
+  if(e) return e;
+  renderPage(p,S.MW).then(()=>{ mark(); }).catch(()=>{});
   return null;
 }
 function prefetch(){
-  const c = S.single ? S.page : S.s*2;
+  const c=S.single?S.page:S.s*2;
   for(let p=c-2;p<=c+5;p++) if(p>0&&p<=S.n) want(p);
 }
-
-/* ══ geometry ══ */
-function leftFactor(s){
-  if(S.single) return .5;
-  return s===0 ? 1.5 : (s>=S.nSheets ? .5 : 1);
-}
-function geom(){
-  const a=S.anim;
-  const f = a ? a.f0+(a.f1-a.f0)*a.pe : leftFactor(S.s);
-  const left = S.W/2 - S.PW*f;
-  return { left, spine:left+(S.single?0:S.PW), top:(S.H-S.PH)/2, PW:S.PW, PH:S.PH };
-}
-
-/* ══ painting ══ */
-const mirrors=new WeakMap();
-function mirrored(img){
-  let c=mirrors.get(img);
-  if(c) return c;
-  c=document.createElement("canvas"); c.width=img.width; c.height=img.height;
-  const x=c.getContext("2d"); x.imageSmoothingQuality="high";
-  x.translate(img.width,0); x.scale(-1,1); x.drawImage(img,0,0);
-  mirrors.set(img,c); return c;
-}
-/* Strips sample from a copy pre-scaled to roughly their on-screen size.
-   Downscaling inside each strip made every strip pick a different sub-pixel
-   phase, which showed up as vertical banding across the page. */
-const scaled=new WeakMap();
-function atSize(src,w,h){
-  if(w>=src.width*.92) return src;
-  let m=scaled.get(src);
-  if(!m){ m=new Map(); scaled.set(src,m); }
-  const key=w+"x"+h;
-  let c=m.get(key);
-  if(c) return c;
-  c=document.createElement("canvas"); c.width=w; c.height=h;
-  const x=c.getContext("2d"); x.imageSmoothingEnabled=true; x.imageSmoothingQuality="high";
-  x.drawImage(src,0,0,w,h);
-  if(m.size>26) m.clear();
-  m.set(key,c); return c;
-}
-function paper(x,y,w,h){
-  CTX.fillStyle="#fdfcfa"; CTX.fillRect(x,y,w,h);
-}
-function flat(img,x,y,w,h){
-  paper(x,y,w,h);
-  if(img) CTX.drawImage(img,x,y,w,h);
-}
-function spineShade(g,leftOn,rightOn){
-  const sp=g.spine, t=g.top, h=g.PH, r=Math.max(10,g.PW*.055);
-  if(leftOn){
-    const gr=CTX.createLinearGradient(sp-r,0,sp,0);
-    gr.addColorStop(0,"rgba(60,44,30,0)"); gr.addColorStop(1,"rgba(60,44,30,.20)");
-    CTX.fillStyle=gr; CTX.fillRect(sp-r,t,r,h);
+ 
+/* ══════════════════════════════════════════════════════
+   WebGL book
+   ══════════════════════════════════════════════════════ */
+let T3=null;                     // three.js namespace
+const G={};                      // gl objects
+const NX=44, NY=30;              // flap mesh resolution
+ 
+function texOf(p){
+  const e=want(p); if(!e) return null;
+  if(!e.tex){
+    const t=new T3.Texture(e.img);
+    if(T3.SRGBColorSpace) t.colorSpace=T3.SRGBColorSpace; else t.encoding=3001;
+    t.anisotropy=G.maxAniso; t.generateMipmaps=true;
+    t.minFilter=T3.LinearMipmapLinearFilter; t.magFilter=T3.LinearFilter;
+    t.needsUpdate=true; e.tex=t;
   }
-  if(rightOn){
-    const gr=CTX.createLinearGradient(sp+r,0,sp,0);
-    gr.addColorStop(0,"rgba(60,44,30,0)"); gr.addColorStop(1,"rgba(60,44,30,.20)");
-    CTX.fillStyle=gr; CTX.fillRect(sp,t,r,h);
-  }
+  return e.tex;
 }
-function bookShadow(g,x,w){
-  CTX.save();
-  CTX.shadowColor="rgba(70,50,34,.30)"; CTX.shadowBlur=26; CTX.shadowOffsetY=10;
-  CTX.fillStyle="rgba(255,255,255,1)";
-  CTX.fillRect(x,g.top,w,g.PH);
-  CTX.restore();
+function paperMat(){
+  return new T3.MeshLambertMaterial({color:0xffffff,side:T3.FrontSide});
 }
-
-/* One bent sheet: the page is bent around a vertical axis, projected with a
-   perspective camera and painted as N thin strips. The whole silhouette is
-   clipped once so strips can overlap (no seams) without ragged edges. */
-function sheet(img,theta,g){
-  const W=g.PW,H=g.PH,sp=g.spine,cy=g.top+H/2;
-  const K=FLEX*Math.sin(theta), D=CAM*W, N=NSTRIP, du=1/N;
-  const X=new Float64Array(N+1), Yt=new Float64Array(N+1), Yb=new Float64Array(N+1);
-  const M=new Float64Array(N+1);
-  let x=0,z=0;
-  X[0]=sp; Yt[0]=cy-H/2; Yb[0]=cy+H/2; M[0]=1;
-  for(let i=1;i<=N;i++){
-    const u=(i-.5)*du, phi=theta+K*u*u;
-    x+=W*du*Math.cos(phi); z+=W*du*Math.sin(phi);
-    const m=D/(D-z);
-    M[i]=m; X[i]=sp+x*m; Yt[i]=cy-(H/2)*m; Yb[i]=cy+(H/2)*m;
+function grid(nx,ny){
+  const g=new T3.BufferGeometry();
+  const np=(nx+1)*(ny+1);
+  const pos=new Float32Array(np*3), uv=new Float32Array(np*2);
+  const iA=[],iB=[];
+  for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){
+    const a=j*(nx+1)+i,b=a+1,c=a+nx+1,d=c+1;
+    iA.push(a,b,c, b,d,c);   // CCW: front face toward the camera
+    iB.push(a,c,b, b,c,d);   // mirrored page: winding flips back
   }
-
-  // shadow the turning sheet throws across the pages underneath
-  const tip=X[N]-sp;
-  if(Math.abs(tip)>2){
-    const gr=CTX.createLinearGradient(sp,0,sp+tip,0);
-    gr.addColorStop(0,"rgba(50,36,24,"+(.28*Math.sin(theta)).toFixed(3)+")");
-    gr.addColorStop(1,"rgba(50,36,24,0)");
-    CTX.fillStyle=gr;
-    CTX.fillRect(Math.min(sp,sp+tip),g.top,Math.abs(tip),H);
+  g.setAttribute("position",new T3.BufferAttribute(pos,3));
+  g.setAttribute("normal",new T3.BufferAttribute(new Float32Array(np*3),3));
+  g.setAttribute("uv",new T3.BufferAttribute(uv,2));
+  g.setIndex(iA);
+  g.userData={iA,iB};
+  return g;
+}
+function setUV(g,mirror){
+  const uv=g.attributes.uv.array;
+  let k=0;
+  for(let j=0;j<=NY;j++)for(let i=0;i<=NX;i++){
+    const u=i/NX;
+    uv[k++]=mirror?1-u:u; uv[k++]=j/NY;
   }
-
-  const back=theta>Math.PI/2;
-  let src=img ? (back?mirrored(img):img) : null;
-  if(src){
-    const span=Math.max(48,Math.abs(X[N]-X[0]))*S.DPR;
-    const tw=Math.min(src.width, Math.max(96, Math.round(span/28)*28));
-    src=atSize(src, tw, Math.round(tw*src.height/src.width));
+  g.attributes.uv.needsUpdate=true;
+}
+ 
+function initGL(){
+  try{
+    const r=new T3.WebGLRenderer({canvas:CVS,antialias:true,alpha:true,powerPreference:"high-performance"});
+    r.setClearColor(0x000000,0);
+    if(CONFIG.shadows){ r.shadowMap.enabled=true; r.shadowMap.type=T3.PCFShadowMap; }
+    if(T3.SRGBColorSpace) r.outputColorSpace=T3.SRGBColorSpace;
+    G.r=r; G.maxAniso=r.capabilities.getMaxAnisotropy();
+  }catch(e){ return false; }
+ 
+  G.scene=new T3.Scene();
+  G.cam=new T3.PerspectiveCamera(26,1,.05,60);
+  G.cam.position.set(0,0,6);
+ 
+  // three.js divides ambient/directional irradiance by PI, so these look large:
+  // measured, they put a flat page at exactly its texture colour (192,68,30 vs 192,69,31).
+  G.scene.add(new T3.AmbientLight(0xffffff,2.04));
+  const dir=new T3.DirectionalLight(0xfff6ec,1.416);
+  dir.position.set(-1.5,2.0,2.1);
+  if(CONFIG.shadows){
+    dir.castShadow=true;
+    dir.shadow.mapSize.set(768,768);
+    dir.shadow.camera.near=.1; dir.shadow.camera.far=14;
+    dir.shadow.camera.left=-2.4; dir.shadow.camera.right=2.4;
+    dir.shadow.camera.top=2.4; dir.shadow.camera.bottom=-2.4;
+    dir.shadow.bias=-0.0009; dir.shadow.normalBias=0.02; dir.shadow.radius=3;
   }
-  const sw=src ? src.width/N : 0;
-
-  CTX.save();
-  // exact outline of the bent page — everything below is clipped to it
-  CTX.beginPath();
-  CTX.moveTo(X[0],Yt[0]);
-  for(let i=1;i<=N;i++) CTX.lineTo(X[i],Yt[i]);
-  for(let i=N;i>=0;i--) CTX.lineTo(X[i],Yb[i]);
-  CTX.closePath();
-  CTX.fillStyle="#fdfcfa"; CTX.fill();   // paper once, not per strip
-  CTX.clip();
-
-  for(let i=0;i<N;i++){
-    const dx=X[i+1]-X[i];
-    const ov=1+1.8/Math.max(.6,Math.abs(dx));      // overlap neighbours: no seams
-    const hh=Math.max(Yb[i]-Yt[i],Yb[i+1]-Yt[i+1])+3;
-    CTX.save();
-    CTX.transform(dx, Yt[i+1]-Yt[i], 0, hh, X[i], Math.min(Yt[i],Yt[i+1])-1.5);
-    if(src){
-      const s0=i*sw, s1=Math.min(src.width, s0+sw*ov);
-      CTX.drawImage(src, s0,0, s1-s0,src.height, 0,0, (s1-s0)/sw*(1/1), 1);
+  G.scene.add(dir); G.dir=dir;
+ 
+  G.book=new T3.Group(); G.scene.add(G.book);
+ 
+  const pg=new T3.PlaneGeometry(1,1,1,1);
+  G.pageL=new T3.Mesh(pg,paperMat()); G.pageR=new T3.Mesh(pg,paperMat());
+  [G.pageL,G.pageR].forEach(m=>{ m.receiveShadow=!!CONFIG.shadows; G.book.add(m); });
+ 
+  G.gF=grid(NX,NY); G.gB=grid(NX,NY);
+  // front and back are the same surface: share the heavy attributes, only UVs differ
+  G.gB.setAttribute("position",G.gF.attributes.position);
+  G.gB.setAttribute("normal",G.gF.attributes.normal);
+  G.flapF=new T3.Mesh(G.gF,paperMat());
+  G.flapZ=0.0016;
+  G.flapB=new T3.Mesh(G.gB,new T3.MeshLambertMaterial({color:0xffffff,side:T3.BackSide}));
+  [G.flapF,G.flapB].forEach(m=>{ m.castShadow=!!CONFIG.shadows; m.receiveShadow=!!CONFIG.shadows; m.visible=false; G.book.add(m); });
+ 
+  if(CONFIG.thickness){
+    const sm=new T3.MeshLambertMaterial({color:0xece5da});
+    G.slabL=new T3.Mesh(new T3.BoxGeometry(1,1,1),sm);
+    G.slabR=new T3.Mesh(new T3.BoxGeometry(1,1,1),sm);
+    [G.slabL,G.slabR].forEach(m=>{ m.receiveShadow=!!CONFIG.shadows; G.book.add(m); });
+  }
+  // soft darkening in the gutter
+  const cc=document.createElement("canvas"); cc.width=64; cc.height=4;
+  const cg=cc.getContext("2d");
+  const lg=cg.createLinearGradient(0,0,64,0);
+  lg.addColorStop(0,"rgba(60,44,30,0)"); lg.addColorStop(.5,"rgba(60,44,30,.42)"); lg.addColorStop(1,"rgba(60,44,30,0)");
+  cg.fillStyle=lg; cg.fillRect(0,0,64,4);
+  const gt=new T3.CanvasTexture(cc);
+  G.gutter=new T3.Mesh(new T3.PlaneGeometry(1,1),
+    new T3.MeshBasicMaterial({map:gt,transparent:true,depthWrite:false}));
+  G.book.add(G.gutter);
+  return true;
+}
+ 
+/* ══ geometry of the book in world units ══ */
+function dims(){
+  const H=1, W=1/S.ratio;
+  return {W,H};
+}
+function fitCamera(){
+  const st=$("stage").getBoundingClientRect();
+  const w=Math.max(1,Math.round(st.width)), h=Math.max(1,Math.round(st.height));
+  S.DPR=Math.min(window.devicePixelRatio||1,2);
+  G.r.setPixelRatio(S.DPR); G.r.setSize(w,h,false);
+  G.cam.aspect=w/h;
+  const {W,H}=dims();
+  const halfW=(S.single?W/2:W)*1.10, halfH=H/2*1.14;
+  const t=Math.tan(G.cam.fov*Math.PI/360);
+  G.cam.position.z=Math.max(halfH/t, halfW/(t*G.cam.aspect));
+  G.cam.updateProjectionMatrix();
+  S.MW=Math.min(1700,Math.max(700,Math.round(w*S.DPR/(S.single?1:2)/100)*100));
+}
+ 
+/* ══ the bend ══
+   Every row of the page rotates about the spine, but rows far from the corner
+   you grabbed lag behind — that lag is what makes the crease run diagonally and
+   the corner lead. Within a row the page also curls (phi grows toward the free
+   edge), so it bows like paper instead of pivoting like a board. The lag is
+   scaled by sin(PHI) so all rows agree again when the page is flat, open or shut. */
+const LAG=1.0;   // >1 would push far rows to a negative angle near PHI=0
+function deform(sgn,PHI,cyGrab,boost){
+  const {W,H}=dims();
+  const P=G.gF.attributes.position.array, N=G.gF.attributes.normal.array;
+  const du=1/NX;
+  let k=0;
+  // Lag is strongest early (corner leads, page peels) and fades as the page
+  // comes round, so it never shears into a wedge at large angles.
+  const lag=LAG*Math.sin(PHI)*Math.pow(Math.max(0,1-PHI/Math.PI),1.5);
+  for(let j=0;j<=NY;j++){
+    const y=(j/NY-.5)*H;
+    const q=Math.min(1,Math.abs(y-cyGrab)/H);
+    const th=Math.max(0,PHI-lag*Math.pow(q,.9));
+    // the grabbed corner also bows more than the anchored side
+    const K=FLEX*boost*Math.sin(th)*(0.5+0.5*(1-q));
+    let x=0,z=0;
+    P[k]=0; P[k+1]=y; P[k+2]=0;
+    N[k]=-sgn*Math.sin(th); N[k+1]=0; N[k+2]=Math.cos(th);
+    k+=3;
+    for(let i=1;i<=NX;i++,k+=3){
+      const u=(i-.5)*du, phi=th+K*u*u;
+      const cp=Math.cos(phi), sp=Math.sin(phi);
+      x+=W*du*cp; z+=W*du*sp;
+      P[k]=sgn*x; P[k+1]=y; P[k+2]=z;
+      // analytic normal — much cheaper than computeVertexNormals every frame
+      N[k]=-sgn*sp; N[k+1]=0; N[k+2]=cp;
     }
-    CTX.restore();
   }
-  // shading in ONE pass — per-strip alpha would double up where strips overlap
-  const span=X[N]-X[0];
-  if(Math.abs(span)>3){
-    const gr=CTX.createLinearGradient(X[0],0,X[N],0);
-    for(let i=0;i<=N;i+=6){
-      const phi=theta+K*Math.pow(i*du,2);
-      const ink=(1-Math.abs(Math.cos(phi)))*.34;
-      let pos=(X[i]-X[0])/span; pos=Math.max(0,Math.min(1,pos));
-      gr.addColorStop(pos,"rgba(44,32,22,"+ink.toFixed(3)+")");
+  G.gF.attributes.position.needsUpdate=true;
+  G.gF.attributes.normal.needsUpdate=true;
+}
+/* how far round the page is, from a dragged corner position */
+function phiFromX(tx){
+  const {W}=dims();
+  return Math.PI*Math.max(0,Math.min(1,(W-tx)/(2*W)));
+}
+ 
+/* ══ scene state ══ */
+function shiftX(s){
+  const {W}=dims();
+  if(S.single) return 0;
+  return s===0 ? -W/2 : (s>=S.nSheets ? W/2 : 0);
+}
+function place(){
+  const {W,H}=dims();
+  G.pageL.scale.set(W,H,1); G.pageR.scale.set(W,H,1);
+  G.pageL.position.set(-W/2,0,0); G.pageR.position.set(W/2,0,0);
+  G.gutter.scale.set(W*0.30,H,1); G.gutter.position.set(0,0,0.002);
+  if(G.slabL){
+    const th=0.012;
+    const a=Math.max(1,S.s), b=Math.max(1,S.nSheets-S.s);
+    const dl=th*Math.min(1,a/Math.max(1,S.nSheets))*2+0.004;
+    const dr=th*Math.min(1,b/Math.max(1,S.nSheets))*2+0.004;
+    G.slabL.scale.set(W,H,dl); G.slabL.position.set(-W/2,0,-dl/2-0.001);
+    G.slabR.scale.set(W,H,dr); G.slabR.position.set(W/2,0,-dr/2-0.001);
+  }
+}
+function setPage(mesh,p){
+  const t=p?texOf(p):null;
+  mesh.material.map=t||null;
+  mesh.material.color.setHex(t?0xffffff:0xfbf8f4);
+  mesh.material.needsUpdate=true;
+  mesh.visible=!!p&&p>=1&&p<=S.n;
+}
+function scene(){
+  if(S.flat) return flatDraw();
+  const {W,H}=dims();
+  const a=S.anim, dr=S.drag, pl=S.peel;
+  place();
+ 
+  let PHI=-1,sgn=1,front=0,back=0,shift;
+  if(a){
+    shift=shiftX(a.s0)+(shiftX(a.s1)-shiftX(a.s0))*a.pe;
+    setPage(G.pageL,a.underL); setPage(G.pageR,a.underR);
+    sgn=a.sgn; front=a.front; back=a.back; PHI=a.phi;
+  }else if(dr){
+    shift=shiftX(dr.s0)+(shiftX(dr.s1)-shiftX(dr.s0))*Math.min(1,dr.t*1.9);
+    setPage(G.pageL,dr.underL); setPage(G.pageR,dr.underR);
+    sgn=dr.sgn; front=dr.front; back=dr.back; PHI=dr.phi;
+  }else{
+    shift=shiftX(S.s);
+    if(S.single){ setPage(G.pageL,null); setPage(G.pageR,S.page); G.pageR.position.set(0,0,0); }
+    else{
+      G.pageR.position.set(W/2,0,0);
+      setPage(G.pageL,S.s===0?null:2*S.s);
+      setPage(G.pageR,S.s>=S.nSheets?null:2*S.s+1);
     }
-    CTX.fillStyle=gr;
-    CTX.fillRect(Math.min(X[0],X[N])-2,g.top-H,Math.abs(span)+4,H*3);
+    if(pl){
+      sgn=pl.sgn; front=pl.front; back=pl.back;
+      if(sgn>0) setPage(G.pageR,pl.under); else setPage(G.pageL,pl.under);
+      PHI=pl.phi;
+    }
   }
-  // soft crease darkening along the spine side of the sheet
-  const cr=Math.max(8,W*.07)*Math.sin(theta);
-  if(cr>1){
-    const dir=Math.cos(theta)>=0?1:-1;
-    const gr=CTX.createLinearGradient(sp,0,sp+cr*dir,0);
-    gr.addColorStop(0,"rgba(40,28,18,.22)"); gr.addColorStop(1,"rgba(40,28,18,0)");
-    CTX.fillStyle=gr; CTX.fillRect(Math.min(sp,sp+cr*dir),g.top-H,Math.abs(cr),H*3);
+  G.book.position.x=shift;
+  G.gutter.visible=!S.single&&G.pageL.visible&&G.pageR.visible;
+  if(G.slabL){ G.slabL.visible=!S.single&&G.pageL.visible; G.slabR.visible=!S.single&&G.pageR.visible; }
+ 
+  const on=PHI>0.0005;
+  G.flapF.visible=on; G.flapB.visible=on;
+  if(on){
+    G.gF.setIndex(sgn>0?G.gF.userData.iA:G.gF.userData.iB);
+    G.gB.setIndex(sgn>0?G.gB.userData.iA:G.gB.userData.iB);
+    setUV(G.gF, sgn<0); setUV(G.gB, sgn>0);
+    const tf=front?texOf(front):null, tb=back?texOf(back):null;
+    G.flapF.material.map=tf||null; G.flapF.material.color.setHex(tf?0xffffff:0xfbf8f4);
+    G.flapB.material.map=tb||null; G.flapB.material.color.setHex(tb?0xffffff:0xfbf8f4);
+    G.flapF.material.needsUpdate=true; G.flapB.material.needsUpdate=true;
+    G.flapF.position.z=G.flapB.position.z=G.flapZ;
+    const st=a||dr||pl;
+    deform(sgn,PHI,st.cy,st.boost||1);
   }
-  CTX.restore();
+  G.r.render(G.scene,G.cam);
 }
-
-function draw(){
-  if(!S.n) return;
-  CTX.setTransform(S.DPR,0,0,S.DPR,0,0);
-  CTX.clearRect(0,0,S.W,S.H);
-  const g=geom(), a=S.anim;
-
-  if(S.single){
-    const p = a ? (a.dir>0?a.underR:a.underL) : S.page;
-    bookShadow(g,g.left,g.PW);
-    flat(want(p), g.left, g.top, g.PW, g.PH);
-    if(a) sheet(want(a.theta>Math.PI/2?a.back:a.front), a.theta, {...g, spine:g.left});
-    return;
+ 
+let frameSum=0,frameN=0,lastT=0,quality=2;
+function budget(){
+  const now=performance.now();
+  if(lastT){ const dt=now-lastT; if(dt<400){ frameSum+=dt; frameN++; } }
+  lastT=now;
+  if(frameN>=24){
+    const avg=frameSum/frameN; frameSum=0; frameN=0;
+    if(avg>30&&quality>1){ quality=1; if(G.r) G.r.shadowMap.enabled=false; }
+    else if(avg>52&&quality>0){ quality=0; if(G.r) G.r.setPixelRatio(1); }
   }
-
-  const shutL = !a && S.s===0;
-  const shutR = !a && S.s>=S.nSheets;
-  const L = a ? a.underL : 2*S.s;
-  const R = a ? a.underR : 2*S.s+1;
-  const showL = a ? true : !shutL;
-  const showR = a ? true : !shutR;
-
-  const bx = showL ? g.left : g.spine;
-  const bw = (showL?g.PW:0)+(showR?g.PW:0);
-  if(bw>0) bookShadow(g,bx,bw);
-  if(showL) flat(want(L), g.left, g.top, g.PW, g.PH);
-  if(showR) flat(want(R), g.spine, g.top, g.PW, g.PH);
-  spineShade(g,showL,showR);
-
-  if(a) sheet(want(a.theta>Math.PI/2?a.back:a.front), a.theta, g);
 }
-
+let pending=false;
+function mark(){ if(pending) return; pending=true; requestAnimationFrame(()=>{ pending=false; scene(); }); }
+ 
+/* ══ flat fallback (no WebGL) ══ */
+function flatDraw(){
+  const L=S.single?null:(S.s===0?null:2*S.s), R=S.single?S.page:(S.s>=S.nSheets?null:2*S.s+1);
+  const el=$("flat"); el.classList.add("on"); CVS.style.display="none";
+  const st=$("stage").getBoundingClientRect();
+  const h=Math.min(st.height-30,(st.width-120)/((S.single?1:2)/S.ratio));
+  [["flatL",L],["flatR",R]].forEach(([id,p])=>{
+    const im=$(id); const e=p?want(p):null;
+    im.style.display=p?"block":"none"; im.style.height=h+"px";
+    if(e&&im.src!==e.url) im.src=e.url;
+  });
+}
+ 
 /* ══ animation ══ */
-const ease = t => t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2;
-function startTurn(dir){
-  const s0=S.s, s1=s0+dir, sheetIdx = dir>0 ? s0 : s1;
-  S.anim={
-    dir, s0, s1,
-    front:sheetIdx*2+1, back:sheetIdx*2+2,
-    underL: dir>0 ? 2*s0 : 2*s1,
-    underR: dir>0 ? 2*s1+1 : 2*s0+1,
-    f0:leftFactor(s0), f1:leftFactor(s1),
-    t0:performance.now(), e:0, pe:0, theta: dir>0?0:Math.PI
-  };
-  swish();
-  requestAnimationFrame(step);
+const ease=t=>1-Math.pow(1-t,2.2);           // flick out, settle in
+const easeIO=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+function turnMeta(dir){
+  const {W,H}=dims();
+  if(S.single){
+    const p0=S.page,p1=p0+dir;
+    return {single:true,p0,p1,sgn:dir>0?1:-1,
+      front:dir>0?p0:p1, back:dir>0?p1:p0,
+      underL:null, underR:dir>0?p1:p0,
+      s0:S.s,s1:S.s, cy:-H/2*0.98};
+  }
+  const s0=S.s,s1=s0+dir, sh=dir>0?s0:s1;
+  return {s0,s1,sgn:dir>0?1:-1,
+    front:sh*2+1, back:sh*2+2,
+    underL: dir>0?2*s0:2*s1,
+    underR: dir>0?2*s1+1:2*s0+1,
+    cy:-H/2*0.98};
 }
-function startTurnSingle(dir){
-  const p0=S.page, p1=p0+dir;
-  S.anim={ dir, single:true, p0, p1,
-    front:dir>0?p0:p1, back:dir>0?p1:p0,
-    underL:p0, underR:p1,
-    f0:.5, f1:.5, t0:performance.now(), e:0, pe:0, theta:dir>0?0:Math.PI };
-  swish();
-  requestAnimationFrame(step);
+function startTurn(dir,fromT){
+  const m=turnMeta(dir);
+  if(m.sgn<0){ const t=m.front; m.front=m.back; m.back=t; }
+  S.peel=null;
+  const t0=fromT||0;
+  S.anim=Object.assign(m,{dir,t0:performance.now(),t:t0,pe:0,phi:Math.PI*t0,startT:t0});
+  swish(); requestAnimationFrame(step);
 }
 function step(now){
   const a=S.anim; if(!a) return;
-  const p=Math.min(1,(now-a.t0)/DUR);
-  a.e=ease(p);
-  a.pe=ease(Math.min(1,p*1.9));
-  a.theta = a.dir>0 ? a.e*Math.PI : (1-a.e)*Math.PI;
-  draw();
-  if(p<1) requestAnimationFrame(step);
+  const span=DUR*(1-a.startT);
+  const raw=Math.min(1,(now-a.t0)/Math.max(120,span));
+  a.t=a.startT+(1-a.startT)*ease(raw);
+  a.pe=ease(Math.min(1,raw*1.9));
+  a.phi=Math.PI*a.t;
+  budget(); scene();
+  if(raw<1) requestAnimationFrame(step);
   else{
     if(a.single) S.page=a.p1; else S.s=a.s1;
-    S.anim=null; chrome(); draw(); prefetch();
+    S.anim=null; chrome(); scene(); prefetch();
     if(S.q){ const d=S.q>0?1:-1; S.q-=d; d>0?next():prev(); }
   }
 }
-
-/* ══ navigation ══ */
 function next(){
-  if(S.anim){ S.q=Math.max(-2,Math.min(2,S.q+1)); return; }
-  if(S.single){ if(S.page>=S.n) return; startTurnSingle(1); }
-  else { if(S.s>=S.nSheets) return; startTurn(1); }
-  chrome();
+  if(S.anim||S.drag){ S.q=Math.max(-2,Math.min(2,S.q+1)); return; }
+  if(S.single){ if(S.page>=S.n) return; } else if(S.s>=S.nSheets) return;
+  startTurn(1); chrome();
 }
 function prev(){
-  if(S.anim){ S.q=Math.max(-2,Math.min(2,S.q-1)); return; }
-  if(S.single){ if(S.page<=1) return; startTurnSingle(-1); }
-  else { if(S.s<=0) return; startTurn(-1); }
-  chrome();
+  if(S.anim||S.drag){ S.q=Math.max(-2,Math.min(2,S.q-1)); return; }
+  if(S.single){ if(S.page<=1) return; } else if(S.s<=0) return;
+  startTurn(-1); chrome();
 }
 function goPage(p){
   p=Math.max(1,Math.min(S.n,p|0));
-  S.want=p; S.anim=null; S.q=0;
+  S.want=p; S.anim=null; S.drag=null; S.peel=null; S.q=0;
   if(S.single) S.page=p; else S.s=(p<=1)?0:Math.floor(p/2);
-  chrome(); draw(); prefetch();
+  chrome(); scene(); prefetch();
 }
-
+ 
 /* ══ chrome ══ */
 function first(){
-  if(S.single) return (S.anim&&S.anim.single) ? S.anim.p1 : S.page;
-  if(S.anim) return S.anim.dir>0 ? 2*S.anim.s1 || 1 : (S.anim.s1===0?1:2*S.anim.s1);
-  return S.s===0 ? 1 : S.s*2;
+  if(S.single) return (S.anim&&S.anim.single)?S.anim.p1:S.page;
+  if(S.anim) return S.anim.s1===0?1:S.anim.s1*2;
+  return S.s===0?1:S.s*2;
 }
 function chrome(){
   const a=first();
-  const b=(!S.single && (S.anim?S.anim.s1:S.s)>0) ? Math.min(a+1,S.n) : a;
+  const b=(!S.single&&(S.anim?S.anim.s1:S.s)>0)?Math.min(a+1,S.n):a;
   $("count").textContent=(a===b?a:a+"–"+b)+" / "+S.n;
   const s=S.anim?S.anim.s1:S.s;
   const pg=(S.anim&&S.anim.single)?S.anim.p1:S.page;
-  $("btnPrev").disabled = S.single ? pg<=1 : s<=0;
-  $("btnNext").disabled = S.single ? pg>=S.n : s>=S.nSheets;
+  $("btnPrev").disabled=S.single?pg<=1:s<=0;
+  $("btnNext").disabled=S.single?pg>=S.n:s>=S.nSheets;
   document.querySelectorAll(".thumb").forEach(t=>{
-    const p=+t.dataset.p; t.classList.toggle("here", p>=a && p<=b);
+    const p=+t.dataset.p; t.classList.toggle("here",p>=a&&p<=b);
   });
-  if(!(S.want>=a && S.want<=b)) S.want=a;
+  if(!(S.want>=a&&S.want<=b)) S.want=a;
   try{ history.replaceState(null,"","#p="+S.want); }catch(e){}
 }
-
-/* ══ layout ══ */
 function layout(){
-  const st=$("stage").getBoundingClientRect();
-  S.DPR=Math.min(window.devicePixelRatio||1,2);
-  S.W=Math.max(1,Math.round(st.width)); S.H=Math.max(1,Math.round(st.height));
-  CVS.width=Math.round(S.W*S.DPR); CVS.height=Math.round(S.H*S.DPR);
-
   const wasSingle=S.single;
-  S.single = S.forceSingle || window.innerWidth < 760;
-  if(wasSingle!==S.single && S.n){
+  S.single=S.forceSingle||window.innerWidth<760;
+  if(wasSingle!==S.single&&S.n){
     if(S.single) S.page=first(); else S.s=(S.page<=1)?0:Math.floor(S.page/2);
   }
-  const cols=S.single?1:2;
-  const availW=S.W-(S.single?18:120), availH=S.H-30;
-  let pw=Math.min(availW/cols, availH/S.ratio), ph=pw*S.ratio;
-  if(ph>availH){ ph=availH; pw=ph/S.ratio; }
-  pw/=1.08; ph/=1.08;                   // headroom for the perspective bulge
-  S.PW=Math.floor(pw); S.PH=Math.floor(ph);
-  S.MW=Math.min(1700,Math.max(700,Math.round(S.PW*S.DPR/100)*100));
-  if(S.n){ chrome(); draw(); prefetch(); }
+  if(S.flat){ if(S.n){ chrome(); flatDraw(); } return; }
+  fitCamera();
+  if(S.n){ chrome(); scene(); prefetch(); }
 }
-
+ 
+/* ══ pointer: hover peel, corner drag, swipe, click ══ */
+const RAY=()=>new T3.Raycaster();
+let planeZ=null, ndc=null, hit=null;
+function toBook(cx,cy){
+  const r=CVS.getBoundingClientRect();
+  if(!ndc){ ndc=new T3.Vector2(); planeZ=new T3.Plane(new T3.Vector3(0,0,1),0); hit=new T3.Vector3(); }
+  ndc.set(((cx-r.left)/r.width)*2-1, -((cy-r.top)/r.height)*2+1);
+  const ray=RAY(); ray.setFromCamera(ndc,G.cam);
+  if(!ray.ray.intersectPlane(planeZ,hit)) return null;
+  return {x:hit.x-G.book.position.x, y:hit.y};
+}
+/* which page corner is the pointer near? returns meta or null */
+function cornerAt(cx,cy){
+  const b=toBook(cx,cy); if(!b) return null;
+  const {W,H}=dims();
+  const nearBottom=b.y<-H*0.14, nearTop=b.y>H*0.14;
+  if(!nearBottom&&!nearTop) return null;
+  const cy0=(nearBottom?-1:1)*H/2*0.98;
+  if(S.single){
+    if(b.x>W/2*0.42&&b.x<W/2*1.15&&S.page<S.n) return mkPeel(1,cy0);
+    if(b.x<-W/2*0.42&&b.x>-W/2*1.15&&S.page>1) return mkPeel(-1,cy0);
+    return null;
+  }
+  if(b.x>W*0.60&&b.x<W*1.12&&S.s<S.nSheets) return mkPeel(1,cy0);
+  if(b.x<-W*0.60&&b.x>-W*1.12&&S.s>0) return mkPeel(-1,cy0);
+  return null;
+}
+function mkPeel(sgn,cy){
+  const {W,H}=dims();
+  const m=turnMeta(sgn>0?1:-1);
+  if(m.sgn<0){ const t=m.front; m.front=m.back; m.back=t; }
+  m.cy=cy;
+  m.under = sgn>0 ? m.underR : m.underL;
+  return m;
+}
+let peelRAF=0;
+const PEEL_IN=190, PEEL_OUT=150;
+/* time-based, not per-frame: a slow device must not get a slow-motion peel */
+function peelTick(now){
+  peelRAF=0;
+  const pl=S.peel; if(!pl||S.drag||S.anim) return;
+  const span=pl.goal>pl.from?PEEL_IN:PEEL_OUT;
+  const k=Math.min(1,(now-pl.t0)/span);
+  pl.k=pl.from+(pl.goal-pl.from)*easeIO(k);
+  if(k<1) peelRAF=requestAnimationFrame(peelTick);
+  else if(pl.goal<=0){ S.peel=null; CVS.classList.remove("grab"); scene(); return; }
+  S.peel.phi=PEELPHI*pl.k*PEELMAX;
+  scene();
+}
+function aimPeel(goal){
+  const pl=S.peel; if(!pl||pl.goal===goal) return;
+  pl.from=pl.k; pl.goal=goal; pl.t0=performance.now();
+  if(!peelRAF) peelRAF=requestAnimationFrame(peelTick);
+}
+function setPeel(m){
+  const {W,H}=dims();
+  if(!m){ aimPeel(0); return; }
+  if(S.peel&&S.peel.sgn===m.sgn&&S.peel.cy===m.cy){ aimPeel(1); return; }
+  S.peel=Object.assign(m,{k:0,from:0,goal:1,t0:performance.now(),phi:0,boost:PEELCURL});
+  CVS.classList.add("grab");
+  if(!peelRAF) peelRAF=requestAnimationFrame(peelTick);
+}
+let sx=0,sy=0,tracking=false,swipedAt=0,moved=false;
+const fromSwipe=()=>Date.now()-swipedAt<400;
+ 
+CVS.addEventListener("pointermove",e=>{
+  if(S.drag){
+    const b=toBook(e.clientX,e.clientY); if(!b) return;
+    const {W,H}=dims();
+    let Tx=S.drag.sgn*b.x;
+    Tx=Math.max(-W*1.02,Math.min(W,Tx));
+    S.drag.phi=phiFromX(Tx); S.drag.t=S.drag.phi/Math.PI;
+    S.drag.boost=1+(PEELCURL-1)*Math.max(0,1-S.drag.t*4);
+    moved=true; mark(); return;
+  }
+  if(S.anim) return;
+  setPeel(cornerAt(e.clientX,e.clientY));
+});
+CVS.addEventListener("pointerleave",()=>{ if(!S.drag) setPeel(null); });
+ 
+CVS.addEventListener("pointerdown",e=>{
+  sx=e.clientX; sy=e.clientY; tracking=true; moved=false;
+  if(S.anim) return;
+  const m=cornerAt(e.clientX,e.clientY);
+  if(!m) return;
+  const {W,H}=dims();
+  const k=(S.peel&&S.peel.sgn===m.sgn)?S.peel.k:0;
+  S.peel=null;
+  const p0=PEELPHI*k*PEELMAX;
+  S.drag=Object.assign(m,{dir:m.sgn>0?1:-1,t:p0/Math.PI,phi:p0,boost:PEELCURL});
+  CVS.classList.remove("grab"); CVS.classList.add("grabbing");
+  try{ CVS.setPointerCapture(e.pointerId); }catch(x){}
+  mark();
+});
+function endDrag(){
+  const d=S.drag; if(!d) return;
+  CVS.classList.remove("grabbing");
+  const dir=d.dir, t=d.t;
+  S.drag=null;
+  if(t>0.40){ startTurn(dir,t); }
+  else{
+    const t0=performance.now(), from=t;
+    S.drag=Object.assign(d,{releasing:true});
+    const back=now=>{
+      const k=Math.min(1,(now-t0)/240);
+      if(!S.drag){ return; }
+      const kk=1-easeIO(k);
+      S.drag.t=from*kk; S.drag.phi=Math.PI*S.drag.t;
+      S.drag.boost=1+(PEELCURL-1)*Math.max(0,1-S.drag.t*4);
+      scene();
+      if(k<1) requestAnimationFrame(back);
+      else{ S.drag=null; scene(); }
+    };
+    requestAnimationFrame(back);
+  }
+}
+CVS.addEventListener("pointerup",e=>{
+  if(S.drag&&!S.drag.releasing){ endDrag(); tracking=false; return; }
+  if(!tracking) return; tracking=false;
+  const dx=e.clientX-sx, dy=e.clientY-sy;
+  if(Math.abs(dx)>52&&Math.abs(dx)>Math.abs(dy)*1.6){ swipedAt=Date.now(); dx<0?next():prev(); return; }
+  if(Math.abs(dx)>8||Math.abs(dy)>8) return;
+  const b=toBook(e.clientX,e.clientY); if(!b) return;
+  const {W,H}=dims();
+  if(Math.abs(b.y)>H/2) return;
+  if(S.single){ if(Math.abs(b.x)>W/2) return; b.x<0?prev():next(); return; }
+  if(Math.abs(b.x)>W) return;
+  b.x<0?prev():next();
+});
+CVS.addEventListener("pointercancel",()=>{ tracking=false; if(S.drag&&!S.drag.releasing) endDrag(); });
+ 
 /* ══ thumbnails ══ */
 let thumbsBuilt=false;
 async function thumbs(){
@@ -672,7 +898,7 @@ async function thumbs(){
   chrome();
 }
 function ensureThumbs(){ if(thumbsBuilt||!S.n) return; thumbsBuilt=true; thumbs(); }
-
+ 
 /* ══ contents ══ */
 async function contents(){
   let out=[]; try{ out=await S.doc.getOutline(); }catch(e){}
@@ -685,10 +911,10 @@ async function contents(){
       const t=document.createElement("span"); t.textContent=it.title||"Untitled";
       btn.appendChild(t); li.appendChild(btn); ul.appendChild(li);
       try{
-        const dest=typeof it.dest==="string" ? await S.doc.getDestination(it.dest) : it.dest;
+        const dest=typeof it.dest==="string"?await S.doc.getDestination(it.dest):it.dest;
         const pg=(await S.doc.getPageIndex(dest[0]))+1;
-        const s=document.createElement("span"); s.className="pg"; s.textContent=pg;
-        btn.appendChild(s);
+        const sp=document.createElement("span"); sp.className="pg"; sp.textContent=pg;
+        btn.appendChild(sp);
         btn.addEventListener("click",()=>{ goPage(pg); closePanel("panelToc"); });
       }catch(e){ btn.disabled=true; }
       if(it.items&&it.items.length) await add(it.items,lvl+1);
@@ -697,7 +923,7 @@ async function contents(){
   await add(out,1);
   $("btnToc").hidden=false;
 }
-
+ 
 /* ══ zoom ══ */
 const zoomOpen=()=>$("zoom").classList.contains("open");
 function zoomFit(){
@@ -726,7 +952,7 @@ $("zIn").addEventListener("click",()=>{ S.zscale=Math.min(3.2,S.zscale*1.3); zoo
 $("zOut").addEventListener("click",()=>{ S.zscale=Math.max(.55,S.zscale/1.3); zoomFit(); zoomChrome(); });
 $("zClose").addEventListener("click",zoomClose);
 $("zoom").addEventListener("click",e=>{ if(e.target.id==="zoom") zoomClose(); });
-
+ 
 /* ══ panels + menu ══ */
 const anyPanelOpen=()=>!!document.querySelector(".panel.open");
 let panelOpener=null;
@@ -751,28 +977,19 @@ document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",
 const toggle=id=>$(id).classList.contains("open")?closePanel(id):openPanel(id);
 $("btnThumbs").addEventListener("click",()=>toggle("panelThumbs"));
 $("btnToc").addEventListener("click",()=>toggle("panelToc"));
-
-function menuOpen(v){
-  $("menu").classList.toggle("open",v);
-  $("btnMore").setAttribute("aria-expanded",String(v));
-}
+function menuOpen(v){ $("menu").classList.toggle("open",v); $("btnMore").setAttribute("aria-expanded",String(v)); }
 $("btnMore").addEventListener("click",e=>{ e.stopPropagation(); menuOpen(!$("menu").classList.contains("open")); });
 document.addEventListener("click",()=>menuOpen(false));
 $("menu").addEventListener("click",e=>e.stopPropagation());
-
-/* ══ toast ══ */
+ 
 let toastT;
-function toast(msg){
-  const t=$("toast"); t.textContent=msg; t.classList.add("show");
-  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),2200);
-}
-
+function toast(m){ const t=$("toast"); t.textContent=m; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),2200); }
+ 
 /* ══ controls ══ */
 $("btnPrev").addEventListener("click",()=>{ if(!fromSwipe()) prev(); });
 $("btnNext").addEventListener("click",()=>{ if(!fromSwipe()) next(); });
 $("btnFull").addEventListener("click",()=>{
-  document.fullscreenElement ? document.exitFullscreen()
-    : document.documentElement.requestFullscreen().catch(()=>{});
+  document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{});
 });
 $("btnShare").addEventListener("click",async()=>{
   const url=location.href;
@@ -782,15 +999,13 @@ $("btnShare").addEventListener("click",async()=>{
   }catch(e){ toast(url); }
 });
 $("mDownload").addEventListener("click",()=>{
-  menuOpen(false);
-  if(!S.src) return;
+  menuOpen(false); if(!S.src) return;
   const a=document.createElement("a");
   a.href=S.src; a.download=(CONFIG.pdf||"document.pdf").split("/").pop();
   document.body.appendChild(a); a.click(); a.remove();
 });
 $("mSingle").addEventListener("click",()=>{
-  menuOpen(false);
-  S.forceSingle=!S.forceSingle;
+  menuOpen(false); S.forceSingle=!S.forceSingle;
   $("mSingleLabel").textContent=S.forceSingle?"Two pages":"Single page";
   layout();
 });
@@ -802,7 +1017,7 @@ $("mSound").addEventListener("click",()=>{
   if(S.sound) swish();
 });
 $("mSoundLabel").textContent=S.sound?"Sound on":"Sound off";
-
+ 
 document.addEventListener("keydown",e=>{
   if(e.metaKey||e.ctrlKey||e.altKey) return;
   if(zoomOpen()){
@@ -820,40 +1035,20 @@ document.addEventListener("keydown",e=>{
   else if(e.key==="Home"){ e.preventDefault(); goPage(1); }
   else if(e.key==="End"){ e.preventDefault(); goPage(S.n); }
 });
-
-/* click the page halves, and swipe */
-let sx=0,sy=0,tracking=false,swipedAt=0;
-const fromSwipe=()=>Date.now()-swipedAt<400;
-$("stage").addEventListener("pointerdown",e=>{ sx=e.clientX; sy=e.clientY; tracking=true; });
-$("stage").addEventListener("pointercancel",()=>{ tracking=false; });
-$("stage").addEventListener("pointerup",e=>{
-  if(!tracking) return; tracking=false;
-  const dx=e.clientX-sx, dy=e.clientY-sy;
-  if(Math.abs(dx)>52 && Math.abs(dx)>Math.abs(dy)*1.6){
-    swipedAt=Date.now(); dx<0?next():prev(); return;
-  }
-  if(Math.abs(dx)>8||Math.abs(dy)>8) return;
-  if(e.target!==CVS) return;
-  const g=geom(), r=CVS.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
-  if(y<g.top||y>g.top+g.PH) return;
-  if(S.single){ if(x<g.left||x>g.left+g.PW) return; x<g.left+g.PW/2?prev():next(); return; }
-  if(x<g.left||x>g.spine+g.PW) return;
-  x<g.spine?prev():next();
-});
-
+ 
 let rt; window.addEventListener("resize",()=>{ clearTimeout(rt); rt=setTimeout(()=>{ layout(); if(zoomOpen()) zoomFit(); },140); });
 window.addEventListener("hashchange",()=>{
   const p=parseInt((location.hash.match(/p=(\d+)/)||[])[1]||"",10);
   if(p&&p!==S.want) goPage(p);
 });
-
+ 
 /* ══ loading ══ */
 function intro(html){ $("introCard").innerHTML=html; $("intro").classList.remove("gone"); }
-function progress(frac){
+function progress(f){
   const bar=$("progBar"), pct=$("progPct");
   if(!bar||!pct) return;
-  if(frac==null){ pct.textContent="Loading…"; return; }
-  const v=Math.max(0,Math.min(1,frac));
+  if(f==null){ pct.textContent="Loading…"; return; }
+  const v=Math.max(0,Math.min(1,f));
   bar.style.width=(v*100).toFixed(0)+"%"; pct.textContent=(v*100).toFixed(0)+"%";
 }
 function readFile(f){
@@ -868,12 +1063,12 @@ function chooser(msg){
     (msg?'<p class="err"></p>':'<p>Pick a PDF from this device, or drag one onto the window. Nothing is uploaded — it stays in your browser.</p>')+
     '<button class="pick" id="pickBtn">Choose a PDF</button>'+
     '<input type="file" id="pickInput" accept="application/pdf" hidden>'+
-    '<p class="hint">← → to turn · click a page side · swipe on mobile</p>');
+    '<p class="hint">← → to turn · kone ko pakad kar kheenchein</p>');
   if(msg) $("introCard").querySelector(".err").textContent=msg;
   $("pickBtn").addEventListener("click",()=>$("pickInput").click());
   $("pickInput").addEventListener("change",e=>{ const f=e.target.files[0]; if(f) readFile(f); });
 }
-
+ 
 let LIB=null;
 async function load(src,name){
   try{
@@ -885,21 +1080,20 @@ async function load(src,name){
     S.n=S.doc.numPages; S.nSheets=Math.ceil(S.n/2);
     const p1=await S.doc.getPage(1), v=p1.getViewport({scale:1});
     S.ratio=v.height/v.width;
-
+ 
     let title=CONFIG.title;
     if(!title){ try{ const m=await S.doc.getMetadata(); title=(m.info&&m.info.Title)||""; }catch(e){} }
     $("brand").textContent=title||name||"Flipbook";
     document.title=title||name||"Flipbook";
-
     if(CONFIG.showDownload&&typeof src==="string"){ S.src=src; $("mDownload").hidden=false; }
-
+ 
     const hash=parseInt((location.hash.match(/p=(\d+)/)||[])[1]||CONFIG.startPage,10)||1;
     S.page=Math.min(Math.max(1,hash),S.n); S.want=S.page;
     S.s=(S.page<=1)?0:Math.floor(S.page/2);
-
+ 
     layout();
     await Promise.all([1,2,3].filter(p=>p<=S.n).map(p=>renderPage(p,S.MW).catch(()=>{})));
-    draw();
+    scene(); chrome();
     $("intro").classList.add("gone");
     contents();
   }catch(err){
@@ -909,7 +1103,7 @@ async function load(src,name){
       : "Couldn’t open that PDF. Check the path in CONFIG, or pick a file below.");
   }
 }
-
+ 
 ["dragenter","dragover"].forEach(t=>window.addEventListener(t,e=>{ e.preventDefault(); document.body.classList.add("dragging"); }));
 window.addEventListener("dragleave",e=>{ if(e.clientX<=0||e.clientY<=0) document.body.classList.remove("dragging"); });
 window.addEventListener("drop",e=>{
@@ -917,7 +1111,7 @@ window.addEventListener("drop",e=>{
   const f=e.dataTransfer&&e.dataTransfer.files[0];
   if(f&&/pdf/i.test(f.type||f.name)) readFile(f);
 });
-
+ 
 function resolvePdf(t){
   if(!t) return null;
   try{ const u=new URL(t,document.baseURI);
@@ -925,57 +1119,64 @@ function resolvePdf(t){
   }catch(e){ return null; }
 }
 function sameOrigin(t){ try{ return new URL(t,document.baseURI).origin===location.origin; }catch(e){ return false; } }
-
+ 
+window.__fbdbg={get S(){return S},scene,dims};
 let booted=false;
-window.__flipbook=function(lib){
+window.__flipbook=function(lib,three){
   if(booted) return;
   booted=true; clearTimeout(watchdog);
-  LIB=lib;
+  LIB=lib; T3=three;
+  if(T3){ if(!initGL()){ S.flat=true; } } else { S.flat=true; }
+  if(S.flat){ CVS.style.display="none"; $("flat").classList.add("on"); }
   layout();
   if(!LIB){ chooser("PDF engine didn’t load. Check your connection and reload."); return; }
   let q=null; try{ q=new URLSearchParams(location.search).get("pdf"); }catch(e){}
   if(q&&!sameOrigin(q)) q=null;
   const target=resolvePdf(q||CONFIG.pdf);
-  target ? load(target) : chooser();
+  target?load(target):chooser();
 };
-const watchdog=setTimeout(()=>{ if(!booted) window.__flipbook(null); },20000);
+const watchdog=setTimeout(()=>{ if(!booted) window.__flipbook(null,null); },22000);
 })();
 </script>
-
-<!-- PDF engine: pdf.js 4.x (ESM) first, old build as a fallback. -->
+ 
+<!-- Engines: pdf.js 4 renders the pages, three.js bends them. -->
 <script type="module">
-const V4="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/legacy/build/";
-const V3="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+const PDFV="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/legacy/build/";
+const THREEV="https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.min.js";
+const PDF3="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
 function loadUmd(){
   return new Promise((res,rej)=>{
     const s=document.createElement("script");
-    s.src=V3+"pdf.min.js";
+    s.src=PDF3+"pdf.min.js";
     s.onload=()=>{ const l=window.pdfjsLib;
       if(!l) return rej(new Error("pdfjsLib missing"));
-      l.GlobalWorkerOptions.workerSrc=V3+"pdf.worker.min.js"; res(l); };
+      l.GlobalWorkerOptions.workerSrc=PDF3+"pdf.worker.min.js"; res(l); };
     s.onerror=()=>rej(new Error("cdn unreachable"));
     document.head.appendChild(s);
   });
 }
 (async function(){
-  let lib=null;
+  let lib=null,three=null;
   try{
-    lib=await import(V4+"pdf.min.mjs");
-    lib.GlobalWorkerOptions.workerSrc=V4+"pdf.worker.min.mjs";
+    lib=await import(PDFV+"pdf.min.mjs");
+    lib.GlobalWorkerOptions.workerSrc=PDFV+"pdf.worker.min.mjs";
   }catch(e){
     console.warn("pdf.js 4 unavailable, falling back:",e);
     try{ lib=await loadUmd(); }catch(e2){ console.error(e2); lib=null; }
   }
+  try{ three=await import(THREEV); }
+  catch(e){ console.warn("three.js unavailable — flat mode:",e); three=null; }
   window.pdfjsLib=lib;
-  window.__flipbook(lib);
+  window.__flipbook(lib,three);
 })();
 </script>
-
+ 
 <script nomodule src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script nomodule>
 if(window.pdfjsLib) window.pdfjsLib.GlobalWorkerOptions.workerSrc=
   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-window.__flipbook(window.pdfjsLib||null);
+window.__flipbook(window.pdfjsLib||null,null);
 </script>
 </body>
 </html>
+ 
