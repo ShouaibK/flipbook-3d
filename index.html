@@ -6,13 +6,16 @@
 <title>AK Trading House — Company Profile</title>
 <meta name="description" content="AK Trading House company profile. Edible oil, ghee and industrial fats — quality products, reliable supply, lasting partnerships. Since 2020.">
 
-<!-- Link preview. Apna GitHub Pages URL yahan daal dein. -->
+<!-- Link preview. Repo ka naam badle to yeh dono URL bhi badalna. -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="AK Trading House — Company Profile">
 <meta property="og:description" content="Edible oil, ghee and industrial fats. Quality products, reliable supply, lasting partnerships.">
-<meta property="og:image" content="https://USERNAME.github.io/REPO/cover.jpg">
-<meta property="og:url" content="https://USERNAME.github.io/REPO/">
+<meta property="og:image" content="https://shouaibk.github.io/flipbook-3d/cover.jpg">
+<meta property="og:url" content="https://shouaibk.github.io/flipbook-3d/">
 <meta name="twitter:card" content="summary_large_image">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<link rel="canonical" href="https://shouaibk.github.io/flipbook-3d/">
 <meta name="theme-color" content="#101319">
 
 <!-- ══════════════════════════════════════════════════════════
@@ -37,7 +40,7 @@ const CONFIG = {
   --stage:#101319; --stage-2:#171b23; --line:#272c37;
   --paper:#fbfaf7; --text:#e9e7e2; --muted:#888d99;
   --brass:#d9a441;
-  --bar:56px; --flip-ms:780ms;
+  --bar:56px; --flip-ms:560ms;
   --display:"Newsreader",Georgia,serif;
   --ui:"Inter Tight",system-ui,-apple-system,sans-serif;
 }
@@ -47,7 +50,7 @@ body{background:var(--stage);color:var(--text);font-family:var(--ui);overflow:hi
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 :focus-visible{outline:2px solid var(--brass);outline-offset:3px;border-radius:4px}
 
-.app{display:flex;flex-direction:column;height:100dvh}
+.app{display:flex;flex-direction:column;height:100dvh;position:relative}
 
 .bar{height:var(--bar);flex:0 0 auto;display:flex;align-items:center;gap:6px;
   padding:0 14px;border-bottom:1px solid var(--line);background:var(--stage-2);position:relative;z-index:60}
@@ -115,9 +118,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .count b{color:var(--text);font-weight:500}
 
 .panel{position:absolute;left:0;right:0;bottom:0;z-index:70;background:#141821;border-top:1px solid var(--line);
-  transform:translateY(101%);transition:transform .28s cubic-bezier(.3,0,.2,1);
+  transform:translateY(101%);visibility:hidden;
+  transition:transform .28s cubic-bezier(.3,0,.2,1),visibility 0s .28s;
   max-height:min(58vh,430px);display:flex;flex-direction:column}
-.panel.open{transform:translateY(0)}
+.panel.open{transform:translateY(0);visibility:visible;transition:transform .28s cubic-bezier(.3,0,.2,1),visibility 0s}
+.panel[inert]{pointer-events:none}
 .panel-head{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line)}
 .panel-head h2{font-family:var(--display);font-size:15px;font-weight:500;letter-spacing:.02em}
 .panel-body{overflow-y:auto;padding:14px;overscroll-behavior:contain}
@@ -139,6 +144,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .zoom{position:fixed;inset:0;z-index:90;background:rgba(8,10,14,.96);display:none;overflow:auto;padding:20px;overscroll-behavior:contain}
 .zoom.open{display:block}
 .zoom img{display:block;margin:0 auto;max-width:none;background:var(--paper);box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.zoom-bar .tool[disabled]{opacity:.3;cursor:default}
 .zoom-bar{position:fixed;top:12px;right:14px;z-index:92;display:flex;gap:4px;background:rgba(23,27,35,.9);border-radius:11px;padding:2px}
 
 .intro{position:absolute;inset:0;z-index:80;display:grid;place-items:center;background:var(--stage);padding:24px;text-align:center}
@@ -152,6 +158,9 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .err{color:#e8836a;font-size:14px;line-height:1.55;max-width:340px}
 .drop{position:fixed;inset:12px;border:2px dashed var(--brass);border-radius:14px;display:none;z-index:95;pointer-events:none}
 body.dragging .drop{display:block}
+.prog{width:190px;height:3px;border-radius:2px;background:var(--line);overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--brass);transition:width .2s linear}
+.pct{font-size:12.5px;color:#5f646f;font-variant-numeric:tabular-nums}
 .spin{width:26px;height:26px;border:2px solid var(--line);border-top-color:var(--brass);border-radius:50%;animation:sp .8s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 
@@ -163,7 +172,7 @@ body.dragging .drop{display:block}
   .count{font-size:13px}
   .thumb{width:70px}
 }
-@media (prefers-reduced-motion:reduce){ .sheet,.edge,.panel{transition-duration:1ms} }
+@media (prefers-reduced-motion:reduce){ .sheet,.edge,.panel,.thumb{transition-duration:1ms} .panel{transition:transform 1ms,visibility 0s 1ms} }
 </style>
 </head>
 
@@ -225,6 +234,10 @@ body.dragging .drop{display:block}
 
   <div class="zoom" id="zoom">
     <div class="zoom-bar">
+      <button class="tool" id="zOut" aria-label="Zoom out">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6M8.4 11h5.2"/></svg></button>
+      <button class="tool" id="zIn" aria-label="Zoom in">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6M11 8.4v5.2M8.4 11h5.2"/></svg></button>
       <button class="tool" id="zPrev" aria-label="Previous page">
         <svg viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg></button>
       <button class="tool" id="zNext" aria-label="Next page">
@@ -236,26 +249,39 @@ body.dragging .drop{display:block}
   </div>
 
   <div class="intro" id="intro">
-    <div class="intro-card" id="introCard"><div class="spin"></div><p>Opening the book…</p></div>
+    <div class="intro-card" id="introCard"><div class="spin"></div><p>Opening the book…</p><div class="prog"><i id="progBar"></i></div><p class="pct" id="progPct"></p></div>
   </div>
   <div class="drop"></div>
+
+  <noscript>
+    <div class="intro" style="z-index:100">
+      <div class="intro-card">
+        <h1>AK Trading House</h1>
+        <p>This flipbook needs JavaScript. You can still read the profile as a PDF.</p>
+        <a class="pick" href="AK-Trading-House-profile.pdf">Open the PDF</a>
+      </div>
+    </div>
+  </noscript>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
 <script>
 (function(){
 "use strict";
 const $ = id => document.getElementById(id);
-const lib = window.pdfjsLib;
-if (lib) lib.GlobalWorkerOptions.workerSrc =
-  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+const THUMB_W   = 170;   // thumbnail render width
+const CACHE_MAX = 26;    // full-size renders kept in memory (thumbs are exempt)
+const TURN_MS   = 130;   // minimum gap between two page turns
 
 const S = {
   doc:null, n:0, ratio:1.414,
   sheets:[], nSheets:0, s:0, page:1,
+  want:1,                       // page the URL hash should keep pointing at
   single: window.innerWidth < 760,
   cache:new Map(), pending:new Map(),
-  sound: CONFIG.soundOn, src:null, busy:false, zp:1
+  sound: CONFIG.soundOn, src:null, busy:false, q:0, lastTurn:0,
+  zp:1, zscale:1.6
 };
 
 const book=$("book"), deck=$("deck"), edgeL=$("edgeL"), edgeR=$("edgeR");
@@ -266,6 +292,7 @@ function swish(){
   if(!S.sound) return;
   try{
     actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state==="suspended") actx.resume();
     const dur=.3, sr=actx.sampleRate, buf=actx.createBuffer(1, Math.floor(sr*dur), sr), d=buf.getChannelData(0);
     for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*(1-i/d.length);
     const s0=actx.createBufferSource(); s0.buffer=buf;
@@ -280,7 +307,24 @@ function swish(){
   }catch(e){}
 }
 
-/* ── rendering + cache ──────────────────────────────── */
+/* ── rendering + bounded cache ──────────────────────────
+   Renders go out as blob URLs, not base64 data URLs: ~30% less
+   memory and the browser can free them. Full-size entries are
+   evicted LRU-style so resizing the window can't grow forever. */
+function inUse(url){
+  const imgs=document.images;
+  for(let i=0;i<imgs.length;i++) if(imgs[i].src===url) return true;
+  return false;
+}
+function cacheSet(key,url){
+  S.cache.set(key,url);
+  const big=[]; for(const k of S.cache.keys()) if(!k.endsWith("@"+THUMB_W)) big.push(k);
+  while(big.length>CACHE_MAX){
+    const k=big.shift(), u=S.cache.get(k);
+    S.cache.delete(k);
+    if(u && !inUse(u)){ try{ URL.revokeObjectURL(u); }catch(e){} }
+  }
+}
 function renderPage(n, width){
   const key = n+"@"+width;
   if(S.cache.has(key)) return Promise.resolve(S.cache.get(key));
@@ -292,20 +336,28 @@ function renderPage(n, width){
     c.width=Math.ceil(vp.width); c.height=Math.ceil(vp.height);
     const ctx=c.getContext("2d",{alpha:false});
     ctx.fillStyle="#fff"; ctx.fillRect(0,0,c.width,c.height);
-    return p.render({canvasContext:ctx, viewport:vp}).promise.then(()=>{
-      const url=c.toDataURL("image/jpeg",.88);
-      S.cache.set(key,url); S.pending.delete(key);
-      return url;
-    });
+    return p.render({canvasContext:ctx, viewport:vp}).promise.then(()=>
+      new Promise((res,rej)=>{
+        c.toBlob(b=>{
+          if(!b) return rej(new Error("encode failed"));
+          const url=URL.createObjectURL(b);
+          cacheSet(key,url);
+          c.width=c.height=0;          // let the canvas memory go
+          res(url);
+        },"image/jpeg",.88);
+      })
+    );
   });
   S.pending.set(key,job);
+  job.then(()=>S.pending.delete(key),()=>S.pending.delete(key));
   return job;
 }
 
 const DPR = Math.min(window.devicePixelRatio||1, 2);
 function mainWidth(){
   const w = book.getBoundingClientRect().width / (S.single?1:2);
-  return Math.min(1700, Math.max(700, Math.round(w*DPR)));
+  // snapped to 100px steps so a drag-resize can't spawn a new render per pixel
+  return Math.min(1700, Math.max(700, Math.round(w*DPR/100)*100));
 }
 
 function fill(face, n){
@@ -316,7 +368,7 @@ function fill(face, n){
   renderPage(n, mainWidth()).then(url=>{
     if(face.dataset.page != n) return;
     let img=face.querySelector("img");
-    if(!img){ img=document.createElement("img"); img.alt="Page "+n; face.appendChild(img); }
+    if(!img){ img=document.createElement("img"); img.alt="Page "+n; img.decoding="async"; face.appendChild(img); }
     img.src=url;
   }).catch(()=>{});
 }
@@ -332,7 +384,10 @@ function build(){
     const b=document.createElement("div"); b.className="face back";
     sh.append(f,b);
     book.appendChild(sh);
-    sh.addEventListener("transitionend",e=>{ if(e.propertyName==="transform"){ S.busy=false; zOrder(); }});
+    sh.addEventListener("transitionend",e=>{
+      if(e.propertyName!=="transform" || e.target!==sh) return;
+      S.busy=false; zOrder(); drain();
+    });
     S.sheets.push({el:sh, front:f, back:b});
   }
   zOrder();
@@ -386,27 +441,45 @@ function chrome(){
   document.querySelectorAll(".thumb").forEach(t=>{
     const p=+t.dataset.p; t.classList.toggle("here", p>=a && p<=b);
   });
+
+  // Keep the deep link the user actually opened. #p=7 shows spread 6–7,
+  // so don't rewrite it to #p=6 — only move it once page 7 is off screen.
+  if(!(S.want>=a && S.want<=b)) S.want=a;
   // Sandboxed / cross-origin iframes (about:srcdoc) block history writes.
-  try{ history.replaceState(null,"","#p="+a); }catch(e){}
+  try{ history.replaceState(null,"","#p="+S.want); }catch(e){}
 }
 
 /* ── navigation ─────────────────────────────────────── */
+function drain(){
+  if(!S.q) return;
+  const d = S.q>0 ? 1 : -1;
+  S.q -= d;
+  d>0 ? next() : prev();
+}
+function cooling(){
+  const t=Date.now();
+  if(t-S.lastTurn < TURN_MS) return true;
+  S.lastTurn=t; return false;
+}
 function next(){
-  if(S.busy) return;
-  if(S.single){ if(S.page>=S.n) return; S.page++; }
-  else { if(S.s>=S.nSheets) return; const sh=S.sheets[S.s]; if(sh) sh.el.style.zIndex=999; S.s++; S.busy=true; }
+  if(S.busy){ S.q = Math.max(-3, Math.min(3, S.q+1)); return; }   // queue instead of dropping
+  if(S.single){ if(S.page>=S.n) return; if(cooling()) return; S.page++; }
+  else { if(S.s>=S.nSheets) return; if(cooling()) return;
+         const sh=S.sheets[S.s]; if(sh) sh.el.style.zIndex=999; S.s++; S.busy=true; }
   swish(); paint();
 }
 function prev(){
-  if(S.busy) return;
-  if(S.single){ if(S.page<=1) return; S.page--; }
-  else { if(S.s<=0) return; const sh=S.sheets[S.s-1]; if(sh) sh.el.style.zIndex=999; S.s--; S.busy=true; }
+  if(S.busy){ S.q = Math.max(-3, Math.min(3, S.q-1)); return; }
+  if(S.single){ if(S.page<=1) return; if(cooling()) return; S.page--; }
+  else { if(S.s<=0) return; if(cooling()) return;
+         const sh=S.sheets[S.s-1]; if(sh) sh.el.style.zIndex=999; S.s--; S.busy=true; }
   swish(); paint();
 }
 function goPage(p){
   p=Math.max(1,Math.min(S.n,p|0));
+  S.want=p;
   if(S.single) S.page=p; else S.s = (p<=1) ? 0 : Math.floor(p/2);
-  S.busy=false; paint();
+  S.busy=false; S.q=0; paint();
 }
 
 /* ── layout ─────────────────────────────────────────── */
@@ -427,9 +500,11 @@ function layout(){
     el.style.setProperty("--ph",Math.floor(ph)+"px");
   });
   if(S.n) paint();
+  if(zoomOpen()) zoomFit();
 }
 
-/* ── thumbnails ─────────────────────────────────────── */
+/* ── thumbnails (built on first open, not at startup) ── */
+let thumbsBuilt=false;
 async function thumbs(){
   const wrap=$("thumbs"); wrap.innerHTML="";
   for(let p=1;p<=S.n;p++){
@@ -437,83 +512,122 @@ async function thumbs(){
     b.className="thumb"; b.dataset.p=p;
     b.style.setProperty("--ar",(1/S.ratio).toFixed(3));
     b.innerHTML='<div class="ph"></div><span>'+p+'</span>';
-    b.addEventListener("click",()=>{ goPage(p); close("panelThumbs"); });
+    b.addEventListener("click",()=>{ goPage(p); closePanel("panelThumbs"); });
     wrap.appendChild(b);
   }
+  chrome();
   for(let p=1;p<=S.n;p++){
     try{
-      const url=await renderPage(p,170);
+      const url=await renderPage(p,THUMB_W);
       const b=wrap.querySelector('.thumb[data-p="'+p+'"]');
-      if(b){ const i=new Image(); i.src=url; i.alt="Page "+p; b.replaceChild(i,b.firstChild); }
+      if(b && b.firstChild){ const i=new Image(); i.src=url; i.alt="Page "+p; i.decoding="async"; b.replaceChild(i,b.firstChild); }
     }catch(e){}
     await new Promise(r=>setTimeout(r,0));
   }
   chrome();
 }
+function ensureThumbs(){ if(thumbsBuilt||!S.n) return; thumbsBuilt=true; thumbs(); }
 
 /* ── contents ───────────────────────────────────────── */
 async function contents(){
   let out=[]; try{ out=await S.doc.getOutline(); }catch(e){}
   if(!out || !out.length) return;
   const ul=$("toc");
-  const add=(items,lvl)=>items.forEach(async it=>{
-    const li=document.createElement("li"), btn=document.createElement("button");
-    if(lvl>1) btn.className="lvl2";
-    const t=document.createElement("span"); t.textContent=it.title||"Untitled";
-    btn.appendChild(t); li.appendChild(btn); ul.appendChild(li);
-    try{
-      const dest = typeof it.dest==="string" ? await S.doc.getDestination(it.dest) : it.dest;
-      const pg = (await S.doc.getPageIndex(dest[0])) + 1;
-      const s=document.createElement("span"); s.className="pg"; s.textContent=pg;
-      btn.appendChild(s);
-      btn.addEventListener("click",()=>{ goPage(pg); close("panelToc"); });
-    }catch(e){ btn.disabled=true; }
-    if(it.items && it.items.length) add(it.items, lvl+1);
-  });
-  add(out,1);
+  // sequential — a forEach(async …) here appends nested items out of order
+  const add = async (items,lvl)=>{
+    for(const it of items){
+      const li=document.createElement("li"), btn=document.createElement("button");
+      if(lvl>1) btn.className="lvl2";
+      const t=document.createElement("span"); t.textContent=it.title||"Untitled";
+      btn.appendChild(t); li.appendChild(btn); ul.appendChild(li);
+      try{
+        const dest = typeof it.dest==="string" ? await S.doc.getDestination(it.dest) : it.dest;
+        const pg = (await S.doc.getPageIndex(dest[0])) + 1;
+        const s=document.createElement("span"); s.className="pg"; s.textContent=pg;
+        btn.appendChild(s);
+        btn.addEventListener("click",()=>{ goPage(pg); closePanel("panelToc"); });
+      }catch(e){ btn.disabled=true; }
+      if(it.items && it.items.length) await add(it.items, lvl+1);
+    }
+  };
+  await add(out,1);
   $("btnToc").hidden=false;
 }
 
 /* ── zoom ───────────────────────────────────────────── */
 const zoomOpen = () => $("zoom").classList.contains("open");
+function zoomFit(){
+  const img=$("zoomImg");
+  if(!img.getAttribute("src")) return;
+  const base=Math.max(280, window.innerWidth-40);
+  img.style.width = Math.round(Math.min(3200, base*S.zscale))+"px";
+}
+function zoomChrome(){
+  $("zPrev").disabled = S.zp<=1;
+  $("zNext").disabled = S.zp>=S.n;
+  $("zOut").disabled  = S.zscale<=0.55;
+  $("zIn").disabled   = S.zscale>=3.2;
+}
 function zoomTo(p){
   if(!S.n) return;
   S.zp = Math.max(1, Math.min(S.n, p));
   const z=$("zoom"), img=$("zoomImg");
-  z.classList.add("open"); img.removeAttribute("src");
-  renderPage(S.zp, 2400).then(u=>{
-    img.src=u;
-    img.style.width = Math.min(2400, Math.round(window.innerWidth*1.9))+"px";
+  z.classList.add("open"); img.removeAttribute("src"); zoomChrome();
+  const w = Math.min(2400, Math.max(1200, Math.round(window.innerWidth*DPR*1.6)));
+  renderPage(S.zp, w).then(u=>{
+    if(!zoomOpen() ) return;
+    img.src=u; img.alt="Page "+S.zp; zoomFit();
   }).catch(()=>{});
 }
-$("btnZoom").addEventListener("click",()=>zoomTo(S.single ? S.page : (S.s===0?1:S.s*2+1)));
+function zoomClose(){ $("zoom").classList.remove("open"); $("zoomImg").removeAttribute("src"); }
+$("btnZoom").addEventListener("click",()=>zoomTo(S.single ? S.page : first()));
 $("zPrev").addEventListener("click",()=>zoomTo(S.zp-1));
 $("zNext").addEventListener("click",()=>zoomTo(S.zp+1));
-$("zClose").addEventListener("click",()=>$("zoom").classList.remove("open"));
-$("zoom").addEventListener("click",e=>{ if(e.target.id==="zoom") $("zoom").classList.remove("open"); });
+$("zIn").addEventListener("click",()=>{ S.zscale=Math.min(3.2,S.zscale*1.3); zoomFit(); zoomChrome(); });
+$("zOut").addEventListener("click",()=>{ S.zscale=Math.max(0.55,S.zscale/1.3); zoomFit(); zoomChrome(); });
+$("zClose").addEventListener("click",zoomClose);
+$("zoom").addEventListener("click",e=>{ if(e.target.id==="zoom") zoomClose(); });
 
 /* ── panels ─────────────────────────────────────────── */
-function open(id){
+const anyPanelOpen = () => !!document.querySelector(".panel.open");
+let panelOpener=null;
+function openPanel(id){
+  panelOpener = document.activeElement;
   document.querySelectorAll(".panel").forEach(p=>{
     const on = p.id===id;
-    p.classList.toggle("open",on); p.setAttribute("aria-hidden", String(!on));
+    p.classList.toggle("open",on);
+    p.setAttribute("aria-hidden", String(!on));
+    p.inert = !on;                       // keeps closed panels out of the tab order
   });
+  if(id==="panelThumbs") ensureThumbs();
+  const f=$(id).querySelector("button");  // move focus into the panel, not past it
+  if(f) f.focus();
 }
-function close(id){ const p=$(id); p.classList.remove("open"); p.setAttribute("aria-hidden","true"); }
-document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>close(b.dataset.close)));
-const toggle = id => $(id).classList.contains("open") ? close(id) : open(id);
+function closePanel(id){
+  const p=$(id);
+  if(!p.classList.contains("open")) return;
+  p.classList.remove("open"); p.setAttribute("aria-hidden","true"); p.inert=true;
+  if(panelOpener && document.contains(panelOpener)) panelOpener.focus();
+  panelOpener=null;
+}
+document.querySelectorAll(".panel").forEach(p=>{ p.inert=true; });
+document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>closePanel(b.dataset.close)));
+const toggle = id => $(id).classList.contains("open") ? closePanel(id) : openPanel(id);
 $("btnThumbs").addEventListener("click",()=>toggle("panelThumbs"));
 $("btnToc").addEventListener("click",()=>toggle("panelToc"));
 
 /* ── controls ───────────────────────────────────────── */
 $("btnPrev").addEventListener("click",prev);
 $("btnNext").addEventListener("click",next);
-$("hitPrev").addEventListener("click",prev);
-$("hitNext").addEventListener("click",next);
+// a swipe already turned the page — don't let the click that follows turn it again
+let swipedAt=0;
+const fromSwipe = () => Date.now()-swipedAt < 400;
+$("hitPrev").addEventListener("click",()=>{ if(!fromSwipe()) prev(); });
+$("hitNext").addEventListener("click",()=>{ if(!fromSwipe()) next(); });
 $("scrub").addEventListener("input",e=>{
   const v=+e.target.value;
   if(S.single) S.page=Math.max(1,v); else S.s=v;
-  S.busy=false; paint();
+  S.busy=false; S.q=0; S.want=first(); paint();
 });
 $("btnSound").addEventListener("click",e=>{
   S.sound=!S.sound;
@@ -527,7 +641,9 @@ $("btnFull").addEventListener("click",()=>{
 });
 $("btnDownload").addEventListener("click",()=>{
   if(!S.src) return;
-  const a=document.createElement("a"); a.href=S.src; a.download="AK-Trading-House-profile.pdf"; a.click();
+  const a=document.createElement("a");
+  a.href=S.src; a.download=(CONFIG.pdf||"document.pdf").split("/").pop();
+  document.body.appendChild(a); a.click(); a.remove();
 });
 
 document.addEventListener("keydown",e=>{
@@ -535,32 +651,54 @@ document.addEventListener("keydown",e=>{
   if(zoomOpen()){
     if(e.key==="ArrowRight"){ e.preventDefault(); zoomTo(S.zp+1); }
     else if(e.key==="ArrowLeft"){ e.preventDefault(); zoomTo(S.zp-1); }
-    else if(e.key==="Escape"){ $("zoom").classList.remove("open"); }
+    else if(e.key==="+"||e.key==="="){ e.preventDefault(); $("zIn").click(); }
+    else if(e.key==="-"){ e.preventDefault(); $("zOut").click(); }
+    else if(e.key==="Escape"){ zoomClose(); }
+    return;
+  }
+  if(anyPanelOpen()){                       // don't flip pages behind an open panel
+    if(e.key==="Escape"){ closePanel("panelThumbs"); closePanel("panelToc"); }
     return;
   }
   if(e.key==="ArrowRight"||e.key==="PageDown"||e.key===" "){ e.preventDefault(); next(); }
   else if(e.key==="ArrowLeft"||e.key==="PageUp"){ e.preventDefault(); prev(); }
   else if(e.key==="Home"){ e.preventDefault(); goPage(1); }
   else if(e.key==="End"){ e.preventDefault(); goPage(S.n); }
-  else if(e.key==="Escape"){ close("panelThumbs"); close("panelToc"); }
 });
 
 let sx=0, sy=0, tracking=false;
 $("stage").addEventListener("pointerdown",e=>{ sx=e.clientX; sy=e.clientY; tracking=true; });
+$("stage").addEventListener("pointercancel",()=>{ tracking=false; });
 $("stage").addEventListener("pointerup",e=>{
   if(!tracking) return; tracking=false;
   const dx=e.clientX-sx, dy=e.clientY-sy;
-  if(Math.abs(dx)>52 && Math.abs(dx)>Math.abs(dy)*1.6){ dx<0 ? next() : prev(); }
+  if(Math.abs(dx)>52 && Math.abs(dx)>Math.abs(dy)*1.6){
+    swipedAt=Date.now();                    // suppress the click this gesture will fire
+    dx<0 ? next() : prev();
+  }
 });
 
 let rt; window.addEventListener("resize",()=>{ clearTimeout(rt); rt=setTimeout(layout,140); });
+window.addEventListener("hashchange",()=>{
+  const p=parseInt((location.hash.match(/p=(\d+)/)||[])[1]||"",10);
+  if(p && p!==S.want) goPage(p);
+});
 
 /* ── loading ────────────────────────────────────────── */
 function intro(html){ $("introCard").innerHTML=html; $("intro").classList.remove("gone"); }
+function progress(frac){
+  const bar=$("progBar"), pct=$("progPct");
+  if(!bar||!pct) return;
+  if(frac==null){ pct.textContent="Loading…"; return; }
+  const v=Math.max(0,Math.min(1,frac));
+  bar.style.width=(v*100).toFixed(0)+"%";
+  pct.textContent=(v*100).toFixed(0)+"%";
+}
 
 function readFile(f){
-  intro('<div class="spin"></div><p>Opening '+f.name+'…</p>');
+  intro('<div class="spin"></div><p>Opening '+f.name.replace(/[<>&]/g,"")+'…</p>');
   const r=new FileReader();
+  r.onerror=()=>chooser("Couldn’t read that file.");
   r.onload=()=>load({data:new Uint8Array(r.result)}, f.name);
   r.readAsArrayBuffer(f);
 }
@@ -568,19 +706,26 @@ function readFile(f){
 function chooser(msg){
   intro(
     '<h1>Open your flipbook</h1>'+
-    (msg ? '<p class="err">'+msg+'</p>'
+    (msg ? '<p class="err"></p>'
          : '<p>Pick a PDF from this device, or drag one onto the window. Nothing is uploaded — it stays in your browser.</p>')+
     '<button class="pick" id="pickBtn">Choose a PDF</button>'+
     '<input type="file" id="pickInput" accept="application/pdf" hidden>'+
     '<p class="hint">← → to turn · click the page edges · pinch or zoom for detail</p>'
   );
+  if(msg) $("introCard").querySelector(".err").textContent=msg;
   $("pickBtn").addEventListener("click",()=>$("pickInput").click());
   $("pickInput").addEventListener("change",e=>{ const f=e.target.files[0]; if(f) readFile(f); });
 }
 
+let LIB=null;
+
 async function load(src, name){
   try{
-    S.doc = await lib.getDocument(src).promise;
+    const opts = (typeof src === "string") ? {url:src} : Object.assign({},src);
+    opts.isEvalSupported = false;          // hardening: no eval path for untrusted PDFs
+    const task = LIB.getDocument(opts);
+    task.onProgress = p => progress(p && p.total ? p.loaded/p.total : null);
+    S.doc = await task.promise;
     S.n = S.doc.numPages;
     const p1 = await S.doc.getPage(1);
     const v = p1.getViewport({scale:1});
@@ -596,10 +741,11 @@ async function load(src, name){
     build();
     const hash = parseInt((location.hash.match(/p=(\d+)/)||[])[1] || CONFIG.startPage, 10) || 1;
     S.page = Math.min(Math.max(1,hash), S.n);
+    S.want = S.page;
     S.s = (S.page<=1) ? 0 : Math.floor(S.page/2);
     layout();
     $("intro").classList.add("gone");
-    thumbs(); contents();
+    contents();
   }catch(err){
     console.error(err);
     chooser(location.protocol === "file:"
@@ -624,15 +770,68 @@ function resolvePdf(t){
     return /^(https?|file|blob|data):$/.test(u.protocol) ? u.href : null;
   }catch(e){ return null; }
 }
+// ?pdf= is limited to this site: otherwise any link could render a stranger's
+// PDF under this domain and this company's name.
+function sameOrigin(t){
+  try{ return new URL(t, document.baseURI).origin === location.origin; }catch(e){ return false; }
+}
 
-if(!lib){ chooser("PDF engine didn’t load. Check your connection and reload."); }
-else {
+let booted=false;
+window.__flipbook = function(lib){
+  if(booted) return;                       // module + nomodule can never both win
+  booted=true; clearTimeout(watchdog);
+  LIB = lib;
+  if(!LIB){ layout(); chooser("PDF engine didn’t load. Check your connection and reload."); return; }
   let q=null; try{ q = new URLSearchParams(location.search).get("pdf"); }catch(e){}
+  if(q && !sameOrigin(q)) q=null;
   const target = resolvePdf(q || CONFIG.pdf);
   layout();
   target ? load(target) : chooser();
-}
+};
+// if no loader ever fires (very old browser, blocked CDN), don't spin forever
+const watchdog = setTimeout(()=>{ if(!booted) window.__flipbook(null); }, 20000);
 })();
+</script>
+
+<!-- PDF engine. pdf.js 4.x (ESM) first — 3.x predates the fix for the
+     malicious-font RCE, and this page can open PDFs a visitor supplies.
+     Falls back to the old build, then to the file picker, if a CDN is blocked. -->
+<script type="module">
+const V4="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/legacy/build/";
+const V3="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+function loadUmd(){
+  return new Promise((res,rej)=>{
+    const s=document.createElement("script");
+    s.src=V3+"pdf.min.js";
+    s.onload=()=>{ const l=window.pdfjsLib;
+      if(!l) return rej(new Error("pdfjsLib missing"));
+      l.GlobalWorkerOptions.workerSrc=V3+"pdf.worker.min.js"; res(l); };
+    s.onerror=()=>rej(new Error("cdn unreachable"));
+    document.head.appendChild(s);
+  });
+}
+// no top-level await here: Safari 14 parses modules but not TLA,
+// and a parse error would leave the page stuck on the spinner.
+(async function(){
+  let lib=null;
+  try{
+    lib = await import(V4+"pdf.min.mjs");
+    lib.GlobalWorkerOptions.workerSrc = V4+"pdf.worker.min.mjs";
+  }catch(e){
+    console.warn("pdf.js 4 unavailable, falling back:",e);
+    try{ lib = await loadUmd(); }catch(e2){ console.error(e2); lib=null; }
+  }
+  window.pdfjsLib = lib;
+  window.__flipbook(lib);
+})();
+</script>
+
+<!-- Browsers with no ES-module support -->
+<script nomodule src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script nomodule>
+if (window.pdfjsLib) window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+window.__flipbook(window.pdfjsLib || null);
 </script>
 </body>
 </html>

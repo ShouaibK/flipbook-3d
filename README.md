@@ -17,8 +17,9 @@ koi paid library nahi. PDF browser me hi render hoti hai (PDF.js) aur page turn 
 2. **Settings → Pages → Source: Deploy from a branch → main → / (root) → Save**
 3. 1–2 minute baad link mil jayega: `https://USERNAME.github.io/REPO/`
 
-Uske baad `index.html` ke `<head>` me `og:image` aur `og:url` me `USERNAME/REPO`
-apne asli values se badal dein, taake share karne par preview theek dikhe.
+`og:image` / `og:url` ab `https://shouaibk.github.io/flipbook-3d/` par set hain.
+Repo ya username badle to `<head>` me yeh dono (aur `canonical`) update karna zaroori hai,
+warna WhatsApp/LinkedIn par link preview blank aayega.
 
 ## Local test
 
@@ -45,12 +46,19 @@ const CONFIG = {
 
 Colors `:root` ke CSS variables me hain — `--brass` badalne se poora accent color badal jayega.
 
+## PDF engine
+
+pdf.js **4.10.38** (ESM, jsDelivr se). Agar wo load na ho to 3.11.174 par fallback
+hota hai, aur wo bhi na chale to file-picker screen aa jati hai. Untrusted PDF ke liye
+`isEvalSupported:false` set hai.
+
 ## Controls
 
 - `←` `→` ya page ke kinaron par click — page turn
 - Swipe — mobile par
 - Toolbar — contents, all pages, zoom, sound, download, fullscreen
-- `#p=7` URL me — kisi bhi page ka direct link
+- `#p=7` URL me — kisi bhi page ka direct link (number wahi rehta hai jo share kiya tha)
+- Zoom view me `+` / `-` — zoom in/out
 
 ## Kisi aur website me embed karna ho
 
